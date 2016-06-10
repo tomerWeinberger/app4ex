@@ -7,4 +7,14 @@
     <string name="third_msg">Love YourSelf</string>
     <string name="fourth_msg">Chat All Night</string>
     <string name="title_activity_login">Login</string>
+    <string name="username">UserName</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="title_activity_register">Register</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="create_account">Create Account</string>
+    <string name="back_login">Already a member? Login</string>
+
 </resources>
