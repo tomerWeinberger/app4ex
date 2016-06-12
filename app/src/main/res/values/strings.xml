@@ -16,5 +16,15 @@
     <string name="email">Email</string>
     <string name="create_account">Create Account</string>
     <string name="back_login">Already a member? Login</string>
+    <string name="title_activity_explenation">Explenation</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="exp1">Contact people from around the World</string>
+    <string name="exp2">Save and see your chat History by scroll the chat screen</string>
+    <string name="exp3">Shake you Mobile for New info in Chat</string>
+    <string name="exp4">Get notification even while playing in other apps  if you keep the app pen in background</string>
+    <string name="exp5">Read and Share your Thoughts</string>
+
+
+
 
 </resources>

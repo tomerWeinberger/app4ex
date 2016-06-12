@@ -1,0 +1,105 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.user.app4.Explenation$PlaceholderFragment">
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textSize="30dp"
+        android:gravity="center"
+        android:text="@string/exp2"/>
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/images"
+        android:layout_below="@+id/textView"
+        android:layout_centerInParent="true" />
+    <Button
+        android:id="@+id/skip"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:text="SKIP" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/view3"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:backgroundTint="#FFC0CB"
+            android:elevation="0dp"
+            android:src="@drawable/n1"
+            app:backgroundTint="#FFC0CB"
+            app:elevation="0dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/view2"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/view3"
+            android:layout_toLeftOf="@+id/view3"
+            android:layout_toStartOf="@+id/view3"
+            android:backgroundTint="#FFF0F5"
+            android:cropToPadding="false"
+            android:elevation="0dp"
+            android:src="@drawable/n2"
+            app:backgroundTint="#FFF0F5"
+            app:elevation="0dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/view4"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/view2"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="#FFC0CB"
+            android:elevation="0dp"
+            android:src="@drawable/n3"
+            app:backgroundTint="#FFC0CB"
+            app:elevation="0dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/view5"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/view4"
+            android:layout_toLeftOf="@+id/view4"
+            android:layout_toStartOf="@+id/view4"
+            android:backgroundTint="#FFC0CB"
+            android:elevation="0dp"
+            android:src="@drawable/n4"
+            app:backgroundTint="#FFC0CB"
+            app:elevation="0dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/view5"
+            android:layout_toLeftOf="@+id/view5"
+            android:layout_toStartOf="@+id/view5"
+            android:backgroundTint="#FFC0CB"
+            android:elevation="0dp"
+            android:src="@drawable/n5"
+            app:backgroundTint="#FFC0CB"
+            app:elevation="0dp" />
+    </LinearLayout>
+
+</RelativeLayout>

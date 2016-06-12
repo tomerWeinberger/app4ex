@@ -2,7 +2,9 @@ package com.example.user.app4;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -107,6 +109,10 @@ public class Login extends AppCompatActivity {
     }
     public void onLoginSuccess() {
         loginButton.setEnabled(true);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("username", "Yes");
+        editor.commit();
         finish();
     }
 }

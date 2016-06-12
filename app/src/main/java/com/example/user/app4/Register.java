@@ -24,6 +24,7 @@ public class Register extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
         usernameIn = (EditText) findViewById(R.id.input_username);
         passwordIn = (EditText) findViewById(R.id.input_password);
         nameIn = (EditText) findViewById(R.id.input_namer);
