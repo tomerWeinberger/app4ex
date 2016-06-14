@@ -1,7 +1,10 @@
 package com.example.user.app4;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -43,8 +46,20 @@ public class Register extends AppCompatActivity {
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Finish the registration screen and return to the Login activity
+                Intent in = new Intent(Register.this, Login.class);
+                startActivity(in);
                 finish();
+            }
+        });
+        Button clear = (Button) findViewById(R.id.btn_clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                usernameIn.getText().clear();
+                passwordIn.getText().clear();
+                nameIn.getText().clear();
+                emailIn.getText().clear();
+
             }
         });
     }
@@ -57,39 +72,30 @@ public class Register extends AppCompatActivity {
 
         signupButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(Register.this,
-                R.style.AppTheme_PopupOverlay);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Creating Account...");
-        progressDialog.show();
 
         String name = usernameIn.getText().toString();
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
         String pvtName = nameIn.getText().toString();
+        onSignupSuccess();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
     }
 
 
     public void onSignupSuccess() {
         signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("username", "Yes");
+        editor.commit();
+        Intent in = new Intent(Register.this,Chat.class);
+        in.putExtra("name", usernameIn.getText().toString());
+        startActivity(in);
         finish();
     }
 
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Register failed", Toast.LENGTH_LONG).show();
-
         signupButton.setEnabled(true);
     }
 
@@ -117,7 +123,7 @@ public class Register extends AppCompatActivity {
             emailIn.setError("enter a valid email address");
             valid = false;
         } else {
-           emailIn.setError(null);
+            emailIn.setError(null);
         }
 
         if (password.isEmpty()) {

@@ -23,8 +23,8 @@
     <string name="exp3">Shake you Mobile for New info in Chat</string>
     <string name="exp4">Get notification even while playing in other apps  if you keep the app pen in background</string>
     <string name="exp5">Read and Share your Thoughts</string>
-
-
+    <string name="clear">Clear All Fields</string>
+    <string name="title_activity_chat">Chat</string>
 
 
 </resources>

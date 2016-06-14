@@ -17,10 +17,10 @@ import android.widget.Toast;
 
 public class Login extends AppCompatActivity {
 
-    EditText nameText;
-    EditText passwordText;
-    Button loginButton;
-    Button regButton;
+    private EditText nameText;
+    private EditText passwordText;
+    private Button loginButton;
+    private Button regButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class Login extends AppCompatActivity {
         nameText = (EditText) findViewById(R.id.input_name);
         loginButton = (Button) findViewById(R.id.btn_login);
         regButton = (Button) findViewById(R.id.btn_Reg);
-
+        passwordText = (EditText) findViewById(R.id.input_password);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -46,6 +46,7 @@ public class Login extends AppCompatActivity {
                 // Start the Signup activity
                 Intent intent = new Intent(Login.this, Register.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -58,26 +59,12 @@ public class Login extends AppCompatActivity {
 
         loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(Login.this,
-                R.style.AppTheme_PopupOverlay);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
 
         String email = nameText.getText().toString();
         String password = passwordText.getText().toString();
+        onLoginSuccess();
 
-        // TODO: Implement your own authentication logic here.
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
     }
 
     private boolean validate() {
@@ -90,7 +77,7 @@ public class Login extends AppCompatActivity {
             nameText.setError("enter a valid name");
             valid = false;
         } else {
-            nameText.setError(null);
+           nameText.setError(null);
         }
 
         if (password.isEmpty()) {
@@ -108,11 +95,14 @@ public class Login extends AppCompatActivity {
         loginButton.setEnabled(true);
     }
     public void onLoginSuccess() {
-        loginButton.setEnabled(true);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("username", "Yes");
         editor.commit();
+        loginButton.setEnabled(true);
+        Intent in = new Intent(Login.this,Chat.class);
+        in.putExtra("name", nameText.getText().toString());
+        startActivity(in);
         finish();
     }
 }

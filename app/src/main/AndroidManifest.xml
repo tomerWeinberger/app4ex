@@ -30,7 +30,11 @@
             android:name=".Explenation"
             android:label="@string/title_activity_explenation"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Menu"></activity>
+        <activity android:name=".Menu" />
+        <activity
+            android:name=".Chat"
+            android:label="@string/title_activity_chat"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
