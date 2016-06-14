@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,8 @@ public class Register extends AppCompatActivity {
     private EditText nameIn;
     private Button signupButton;
     private TextView loginLink;
+    private int iconNumber;
+    private RadioGroup raGroup;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class Register extends AppCompatActivity {
         passwordIn = (EditText) findViewById(R.id.input_password);
         nameIn = (EditText) findViewById(R.id.input_namer);
         emailIn = (EditText) findViewById(R.id.input_email);
-
+        raGroup = (RadioGroup) findViewById(R.id.radioGroup);
         signupButton = (Button) findViewById(R.id.btn_signup);
         loginLink = (TextView) findViewById(R.id.link_login);
 
@@ -77,9 +80,20 @@ public class Register extends AppCompatActivity {
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
         String pvtName = nameIn.getText().toString();
-        onSignupSuccess();
+        int id = raGroup.getCheckedRadioButtonId();
+        if (id == R.id.btn_icon1) {
+            iconNumber = 1;
+        }
+        if (id == R.id.btn_icon2) {
+            iconNumber = 2;
+        }
+        if (id == R.id.btn_icon3) {
+            iconNumber = 3;
+        }
 
-    }
+    onSignupSuccess();
+
+}
 
 
     public void onSignupSuccess() {
@@ -88,7 +102,7 @@ public class Register extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("username", "Yes");
         editor.commit();
-        Intent in = new Intent(Register.this,Chat.class);
+        Intent in = new Intent(Register.this, Chat.class);
         in.putExtra("name", usernameIn.getText().toString());
         startActivity(in);
         finish();

@@ -56,6 +56,7 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         chatText2.setText(chatMessageObj.username);
         return row;
     }
+
 }
 
 

@@ -60,8 +60,24 @@ public class Login extends AppCompatActivity {
         loginButton.setEnabled(false);
 
 
-        String email = nameText.getText().toString();
+       /* String name = nameText.getText().toString();
         String password = passwordText.getText().toString();
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost("http://a_site.com/logintest.aspx");
+
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("userName", name));
+            nameValuePairs.add(new BasicNameValuePair("password", password));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            HttpResponse response = httpclient.execute(httppost);
+
+        } catch (ClientProtocolException e) {
+
+        } catch (IOException e) {
+
+        }*/
         onLoginSuccess();
 
 

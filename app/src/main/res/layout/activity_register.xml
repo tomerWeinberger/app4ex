@@ -108,12 +108,55 @@
                 android:inputType="textEmailAddress" />
         </android.support.design.widget.TextInputLayout>
 
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_margin="10dp">
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/btn_icon1"
+                android:layout_width="25dp"
+                android:layout_height="15dp"
+                android:layout_marginRight="5dp"
+                android:checked="true" />
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/logo1"
+                android:layout_marginRight="25dp"/>
+
+            <RadioButton
+                android:id="@+id/btn_icon2"
+                android:layout_width="25dp"
+                android:layout_height="15dp"
+                android:layout_marginRight="5dp"
+                android:checked="true"/>
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/logo2"
+                android:layout_marginRight="25dp"/>
+
+            <RadioButton
+                android:id="@+id/btn_icon3"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="5dp"
+                android:checked="true"/>
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/logo3"/>
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
             <!-- Signup Button -->
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_signup"
@@ -129,8 +172,8 @@
                 style="@style/btnStyleGenoa"
                 android:layout_width="150dp"
                 android:layout_height="50dp"
-                android:padding="12dp"
                 android:layout_marginLeft="15dp"
+                android:padding="12dp"
                 android:text="@string/clear"
                 android:textColor="#0b0b0b" />
         </LinearLayout>
