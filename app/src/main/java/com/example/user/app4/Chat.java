@@ -5,7 +5,12 @@ package com.example.user.app4;
  */
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.DataSetObserver;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -29,15 +34,35 @@ public class Chat extends Activity {
     private EditText chatText;
     private Button buttonSend;
     private String username;
+    private SensorManager sensorManager;
+    private SensorEventListener listener;
+    private Sensor accelometer;
+    private long lastUpdate;
+    private float last_x,last_y,last_z;
+    private static final int SHAKE_THRESHOLD = 800;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(listener,accelometer,
+                SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(listener);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         setContentView(R.layout.activity_chat);
         Bundle extras = getIntent().getExtras();
         username = extras.getString("name");
@@ -74,20 +99,19 @@ public class Chat extends Activity {
         });
 
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-
             int currentFirstVisibleItem;
             int currentVisibleItemCount;
-
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
                 if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
                     if (currentFirstVisibleItem == 0) {
-
                         load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
-
                     }
+                } else {
+                    listView.scrollBy(0,20);//).scrollListBy(10);
                 }
+                return;
             }
 
             @Override
@@ -97,10 +121,40 @@ public class Chat extends Activity {
                 currentVisibleItemCount = visibleItemCount;
             }
         });
+        listener = new SensorEventListener() {
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                //i dont need this function
+                long curTime = System.currentTimeMillis();
+            }
 
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() != SensorManager.SENSOR_ACCELEROMETER) return;
+                    long curTime = System.currentTimeMillis();
+                    // only allow one update every 100ms.
+                    if ((curTime - lastUpdate) > 100) {
+                        long diffTime = (curTime - lastUpdate);
+                        lastUpdate = curTime;
+
+                        float x = event.values[SensorManager.DATA_X];
+                        float y = event.values[SensorManager.DATA_Y];
+                        float z = event.values[SensorManager.DATA_Z];
+
+                        float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
+
+                        if (speed > SHAKE_THRESHOLD) {
+                            load();
+                        }
+                        last_x = x;
+                        last_y = y;
+                        last_z = z;
+                    }
+            }
+        };
     }
     private void load(){
-
+        chatText.setText("I got here-this is good!!!!");
     }
     private boolean sendChatMessage() {
         chatArrayAdapter.add(new ChatMessage(this.username, chatText.getText().toString()));

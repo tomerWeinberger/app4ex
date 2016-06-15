@@ -25,6 +25,7 @@
     <string name="exp5">Read and Share your Thoughts</string>
     <string name="clear">Clear All Fields</string>
     <string name="title_activity_chat">Chat</string>
+    <string name="title_activity_manual">Manual</string>
 
 
 </resources>

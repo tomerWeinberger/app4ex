@@ -75,7 +75,7 @@ public class Welcome extends AppCompatActivity {
         else{
             intent = new Intent(Welcome.this, Menu.class);
         }*/
-        intent = new Intent(Welcome.this, Explenation.class);
+        intent = new Intent(Welcome.this, Login.class);
         startActivity(intent);
     }
 }
