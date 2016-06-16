@@ -16,6 +16,17 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class Register extends AppCompatActivity {
 
     private EditText usernameIn;
@@ -24,7 +35,7 @@ public class Register extends AppCompatActivity {
     private EditText nameIn;
     private Button signupButton;
     private TextView loginLink;
-    private int iconNumber;
+    private String iconNumber;
     private RadioGroup raGroup;
 
     @Override
@@ -82,18 +93,50 @@ public class Register extends AppCompatActivity {
         String pvtName = nameIn.getText().toString();
         int id = raGroup.getCheckedRadioButtonId();
         if (id == R.id.btn_icon1) {
-            iconNumber = 1;
+            iconNumber = "1";
         }
         if (id == R.id.btn_icon2) {
-            iconNumber = 2;
+            iconNumber = "2";
         }
         if (id == R.id.btn_icon3) {
-            iconNumber = 3;
+            iconNumber = "3";
         }
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL("loacalhoast:8080/Server/Register");
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("userName", name);
+            urlConnection.setRequestProperty("password", password);
+            urlConnection.setRequestProperty("fb", iconNumber);
+            urlConnection.setRequestProperty("mail", email);
+            urlConnection.setRequestProperty("name", pvtName);
+            try {
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF8"));
+                StringBuilder responseStrBuilder = new StringBuilder();
+                String inputStr;
+                while ((inputStr = streamReader.readLine()) != null)
+                    responseStrBuilder.append(inputStr);
+                JSONObject json = new JSONObject(responseStrBuilder.toString());
+                if (json.getString("register_result") == "success") {
 
-    onSignupSuccess();
+                } else {
+                    onSignupFailed();
+                    return;
+                }
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            User.cookie = urlConnection.getHeaderField("Set-Cookie");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            urlConnection.disconnect();
+        }
+        onSignupSuccess();
 
-}
+    }
 
 
     public void onSignupSuccess() {

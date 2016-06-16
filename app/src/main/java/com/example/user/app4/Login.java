@@ -15,6 +15,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class Login extends AppCompatActivity {
 
     private EditText nameText;
@@ -60,28 +71,43 @@ public class Login extends AppCompatActivity {
         loginButton.setEnabled(false);
 
 
-       /* String name = nameText.getText().toString();
+        String name = nameText.getText().toString();
         String password = passwordText.getText().toString();
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost("http://a_site.com/logintest.aspx");
-
+        HttpURLConnection urlConnection =null;
         try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-            nameValuePairs.add(new BasicNameValuePair("userName", name));
-            nameValuePairs.add(new BasicNameValuePair("password", password));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            URL url = new URL("loacalhoast:8080/Server/login");
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("userName", name);
+            urlConnection.setRequestProperty("password", password);
+            try {
+                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF8"));
+                StringBuilder responseStrBuilder = new StringBuilder();
+                String inputStr;
+                while ((inputStr = streamReader.readLine()) != null)
+                    responseStrBuilder.append(inputStr);
+                JSONObject json = new JSONObject(responseStrBuilder.toString());
+                if(json.getString("login_result") == "success"){
 
-            HttpResponse response = httpclient.execute(httppost);
+                }else{
+                    onLoginFailed();
+                    return;
+                }
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            User.cookie = urlConnection.getHeaderField("Set-Cookie");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                urlConnection.disconnect();
+            }
 
-        } catch (ClientProtocolException e) {
-
-        } catch (IOException e) {
-
-        }*/
-        onLoginSuccess();
+            onLoginSuccess();
 
 
-    }
+        }
 
     private boolean validate() {
         boolean valid = true;
@@ -93,7 +119,7 @@ public class Login extends AppCompatActivity {
             nameText.setError("enter a valid name");
             valid = false;
         } else {
-           nameText.setError(null);
+            nameText.setError(null);
         }
 
         if (password.isEmpty()) {
@@ -105,18 +131,20 @@ public class Login extends AppCompatActivity {
 
         return valid;
     }
+
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
         loginButton.setEnabled(true);
     }
+
     public void onLoginSuccess() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("username", "Yes");
         editor.commit();
         loginButton.setEnabled(true);
-        Intent in = new Intent(Login.this,Chat.class);
+        Intent in = new Intent(Login.this, Chat.class);
         in.putExtra("name", nameText.getText().toString());
         startActivity(in);
         finish();
