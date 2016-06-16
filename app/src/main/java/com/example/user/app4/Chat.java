@@ -106,21 +106,22 @@ public class Chat extends Activity {
             int currentVisibleItemCount;
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                    int currentFirstVisibleItem = listView.getFirstVisiblePosition();
-                    if (currentFirstVisibleItem <= mLastFirstVisibleItem) {
-                        if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
-                            if (currentFirstVisibleItem == 0) {
-                                if(update)
-                                    load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
-                                else update=true;
-                            }
-                        } else {
-                            listView.scrollBy(0,10);//).scrollListBy(10);
+                int currentFirstVisibleItem = listView.getFirstVisiblePosition();
+                if (currentFirstVisibleItem <= mLastFirstVisibleItem) {
+                    if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
+                        if (currentFirstVisibleItem == 0) {
+                            if(update)
+                                load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
+                            else
+                                update=true;
                         }
                     } else {
-                        update = false;
+                        listView.scrollBy(0,10);//).scrollListBy(10);
                     }
-                    mLastFirstVisibleItem = currentFirstVisibleItem;
+                } else {
+                    update = false;
+                }
+                mLastFirstVisibleItem = currentFirstVisibleItem;
                 return;
             }
 
