@@ -49,7 +49,7 @@ public class Chat extends Activity {
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(listener,accelometer,
-                SensorManager.SENSOR_DELAY_GAME);
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
