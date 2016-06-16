@@ -40,6 +40,8 @@ public class Chat extends Activity {
     private long lastUpdate;
     private float last_x,last_y,last_z;
     private static final int SHAKE_THRESHOLD = 800;
+    private int mLastFirstVisibleItem;
+    private boolean update;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -50,6 +52,7 @@ public class Chat extends Activity {
         super.onResume();
         sensorManager.registerListener(listener,accelometer,
                 SensorManager.SENSOR_DELAY_GAME);
+        mLastFirstVisibleItem = listView.getFirstVisiblePosition();
     }
 
     @Override
@@ -103,14 +106,21 @@ public class Chat extends Activity {
             int currentVisibleItemCount;
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-                if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
-                    if (currentFirstVisibleItem == 0) {
-                        load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
+                    int currentFirstVisibleItem = listView.getFirstVisiblePosition();
+                    if (currentFirstVisibleItem <= mLastFirstVisibleItem) {
+                        if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
+                            if (currentFirstVisibleItem == 0) {
+                                if(update)
+                                    load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
+                                else update=true;
+                            }
+                        } else {
+                            listView.scrollBy(0,10);//).scrollListBy(10);
+                        }
+                    } else {
+                        update = false;
                     }
-                } else {
-                    listView.scrollBy(0,20);//).scrollListBy(10);
-                }
+                    mLastFirstVisibleItem = currentFirstVisibleItem;
                 return;
             }
 
