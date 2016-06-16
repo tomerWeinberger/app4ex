@@ -51,12 +51,8 @@ public class Chat extends Activity {
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(listener,accelometer,
-<<<<<<< HEAD
                 SensorManager.SENSOR_DELAY_GAME);
         mLastFirstVisibleItem = listView.getFirstVisiblePosition();
-=======
-                SensorManager.SENSOR_DELAY_NORMAL);
->>>>>>> 47ada1c5128250c069b6da08bbc41ab6bf6e8bf2
     }
 
     @Override
