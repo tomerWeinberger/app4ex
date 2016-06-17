@@ -20,10 +20,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -103,7 +106,7 @@ public class Register extends AppCompatActivity {
         }
         HttpURLConnection urlConnection = null;
         try {
-            URL url = new URL("loacalhoast:8080/Server/Register");
+            URL url = new URL("http://localhost:8080/Server/Register/");
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setRequestProperty("userName", name);

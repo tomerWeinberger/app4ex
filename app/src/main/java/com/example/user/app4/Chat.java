@@ -111,12 +111,12 @@ public class Chat extends Activity {
                     if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
                         if (currentFirstVisibleItem == 0) {
                             if(update)
-                                load();// getMessages(); //write what you want to do when you scroll up to the end of listview.
+                                updateMessages(); //write what you want to do when you scroll up to the end of listview.
                             else
                                 update=true;
                         }
                     } else {
-                        listView.scrollBy(0,10);//).scrollListBy(10);
+                        listView.scrollBy(0,10);
                     }
                 } else {
                     update = false;
@@ -164,6 +164,11 @@ public class Chat extends Activity {
             }
         };
     }
+
+    private void updateMessages(){
+        chatText.setText("I got here-this is good!!!!");
+    }
+
     private void load(){
         chatText.setText("I got here-this is good!!!!");
     }
