@@ -3,6 +3,7 @@ package com.example.user.app4;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -32,6 +33,7 @@ public class Login extends AppCompatActivity {
     private EditText passwordText;
     private Button loginButton;
     private Button regButton;
+    private UserLoginTask mAuthTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,45 +71,10 @@ public class Login extends AppCompatActivity {
         }
 
         loginButton.setEnabled(false);
+        mAuthTask = new UserLoginTask(nameText.getText().toString(),passwordText.getText().toString());
+        mAuthTask.execute();
 
-
-        String name = nameText.getText().toString();
-        String password = passwordText.getText().toString();
-        HttpURLConnection urlConnection =null;
-        try {
-            URL url = new URL("loacalhoast:8080/Server/login");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("userName", name);
-            urlConnection.setRequestProperty("password", password);
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF8"));
-                StringBuilder responseStrBuilder = new StringBuilder();
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null)
-                    responseStrBuilder.append(inputStr);
-                JSONObject json = new JSONObject(responseStrBuilder.toString());
-                if(json.getString("login_result") == "success"){
-
-                }else{
-                    onLoginFailed();
-                    return;
-                }
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            User.cookie = urlConnection.getHeaderField("Set-Cookie");
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                urlConnection.disconnect();
-            }
-
-            onLoginSuccess();
-
-
-        }
+    }
 
     private boolean validate() {
         boolean valid = true;
@@ -149,4 +116,68 @@ public class Login extends AppCompatActivity {
         startActivity(in);
         finish();
     }
+
+    public class UserLoginTask extends AsyncTask<Void, Void, JSONObject> {
+        private final String name;
+        private final String pass;
+
+        UserLoginTask(String name, String pass) {
+            this.name = name;
+            this.pass = pass;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            try {
+                URL url = new URL("http://10.0.2.2:8080/Server/MyLogin");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+               //urlConnection.setDoOutput(true);
+                //urlConnection.setDoInput(true);
+                //urlConnection.setRequestProperty("userName", name);
+                //urlConnection.setRequestProperty("password", pass);
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                    StringBuilder responseStrBuilder = new StringBuilder();
+                    User.cookie = urlConnection.getHeaderField("Set-Cookie");
+                    String inputStr;
+                    while ((inputStr = streamReader.readLine()) != null)
+                        responseStrBuilder.append(inputStr);
+
+                    return new JSONObject(responseStrBuilder.toString());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final JSONObject json) {
+          try {
+              if (json.getString("login_result") == "success") {
+                  onLoginSuccess();
+              } else {
+                  onLoginFailed();
+              }
+          }catch (JSONException e){
+              e.printStackTrace();
+          }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+
+        }
+    }
+
+
 }
