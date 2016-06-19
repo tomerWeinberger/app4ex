@@ -69,7 +69,7 @@ public class Welcome extends AppCompatActivity {
             editor.commit();
             intent = new Intent(Welcome.this, Explenation.class);
         }
-        else if (settings.getString("username", "User not found").equals("User not found")) {
+        else if (settings.getString("username", "").equals("")) {
             intent = new Intent(Welcome.this, Login.class);
         }
         else{

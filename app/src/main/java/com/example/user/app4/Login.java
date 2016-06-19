@@ -110,9 +110,12 @@ public class Login extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
+        String name = nameText.getText().toString();
+        String password = passwordText.getText().toString();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("username", "Yes");
+        editor.putString("username", name);
+        editor.putString("password", password);
         editor.commit();
         loginButton.setEnabled(true);
         Intent in = new Intent(Login.this, Chat.class);

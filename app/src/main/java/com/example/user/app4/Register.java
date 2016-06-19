@@ -3,6 +3,7 @@ package com.example.user.app4;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -38,9 +39,8 @@ public class Register extends AppCompatActivity {
     private EditText nameIn;
     private Button signupButton;
     private TextView loginLink;
-    private String iconNumber;
     private RadioGroup raGroup;
-
+    private UserRegisterTask mAuthTask;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +95,7 @@ public class Register extends AppCompatActivity {
         String password = passwordIn.getText().toString();
         String pvtName = nameIn.getText().toString();
         int id = raGroup.getCheckedRadioButtonId();
+        String iconNumber = "";
         if (id == R.id.btn_icon1) {
             iconNumber = "1";
         }
@@ -104,50 +105,20 @@ public class Register extends AppCompatActivity {
         if (id == R.id.btn_icon3) {
             iconNumber = "3";
         }
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL("http://10.0.2.2:8080/Server/Register");
-            urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestMethod("POST");
-            /*urlConnection.setRequestProperty("userName", name);
-            urlConnection.setRequestProperty("password", password);
-            urlConnection.setRequestProperty("fb", iconNumber);
-            urlConnection.setRequestProperty("mail", email);
-            urlConnection.setRequestProperty("name", pvtName);*/
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF8"));
-                StringBuilder responseStrBuilder = new StringBuilder();
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null)
-                    responseStrBuilder.append(inputStr);
-                JSONObject json = new JSONObject(responseStrBuilder.toString());
-                if (json.getString("register_result") == "success") {
-                    email=email;
-                } else {
-                    onSignupFailed();
-                    return;
-                }
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
-            User.cookie = urlConnection.getHeaderField("Set-Cookie");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            urlConnection.disconnect();
-        }
-        onSignupSuccess();
+        mAuthTask = new UserRegisterTask(name,password,email,pvtName,iconNumber);
 
     }
 
 
     public void onSignupSuccess() {
-        signupButton.setEnabled(true);
+        String name = usernameIn.getText().toString();
+        String password = passwordIn.getText().toString();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("username", "Yes");
+        editor.putString("username", name);
+        editor.putString("password", password);
         editor.commit();
+        signupButton.setEnabled(true);
         Intent in = new Intent(Register.this, Chat.class);
         in.putExtra("name", usernameIn.getText().toString());
         startActivity(in);
@@ -194,6 +165,78 @@ public class Register extends AppCompatActivity {
         }
 
         return valid;
+    }
+    public class UserRegisterTask extends AsyncTask<Void, Void, JSONObject> {
+        private final String name;
+        private final String pass;
+        private  final String email;
+        private final String pvtName;
+        private final String icon;
+        UserRegisterTask(String name, String pass,String email,String pvtName, String icon) {
+            this.name = name;
+            this.pass = pass;
+            this.email = email;
+            this.icon = icon;
+            this.pvtName = pvtName;
+
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            try {
+                URL url = new URL("http://10.0.0.1:8080/Server/Register");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setReadTimeout(100000);
+                urlConnection.setConnectTimeout(150000);
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("userName", name);
+                urlConnection.setRequestProperty("password", pass);
+                urlConnection.setRequestProperty("fb", icon);
+                urlConnection.setRequestProperty("mail", email);
+                urlConnection.setRequestProperty("name", pvtName);
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                    StringBuilder responseStrBuilder = new StringBuilder();
+                    User.cookie = urlConnection.getHeaderField("Set-Cookie");
+                    String inputStr;
+                    while ((inputStr = streamReader.readLine()) != null)
+                        responseStrBuilder.append(inputStr);
+
+                    return new JSONObject(responseStrBuilder.toString());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final JSONObject json) {
+            try {
+                if (json.getString("register_result") == "success") {
+                    onSignupSuccess();
+                } else {
+                    onSignupFailed();
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+
+        }
     }
 }
 
