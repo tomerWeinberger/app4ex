@@ -106,14 +106,14 @@ public class Register extends AppCompatActivity {
         }
         HttpURLConnection urlConnection = null;
         try {
-            URL url = new URL("http://localhost:8080/Server/Register/");
+            URL url = new URL("http://10.0.2.2:8080/Server/Register");
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("userName", name);
+//            urlConnection.setRequestMethod("POST");
+            /*urlConnection.setRequestProperty("userName", name);
             urlConnection.setRequestProperty("password", password);
             urlConnection.setRequestProperty("fb", iconNumber);
             urlConnection.setRequestProperty("mail", email);
-            urlConnection.setRequestProperty("name", pvtName);
+            urlConnection.setRequestProperty("name", pvtName);*/
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF8"));
@@ -123,7 +123,7 @@ public class Register extends AppCompatActivity {
                     responseStrBuilder.append(inputStr);
                 JSONObject json = new JSONObject(responseStrBuilder.toString());
                 if (json.getString("register_result") == "success") {
-
+                    email=email;
                 } else {
                     onSignupFailed();
                     return;

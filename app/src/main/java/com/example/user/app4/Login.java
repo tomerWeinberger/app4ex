@@ -21,11 +21,15 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 public class Login extends AppCompatActivity {
 
@@ -129,11 +133,13 @@ public class Login extends AppCompatActivity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://10.0.2.2:8080/Server/MyLogin");
+                URL url = new URL("http://10.0.0.1:8080/Server/MyLogin");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-               //urlConnection.setDoOutput(true);
-                //urlConnection.setDoInput(true);
+                urlConnection.setReadTimeout(100000);
+                urlConnection.setConnectTimeout(150000);
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
                 //urlConnection.setRequestProperty("userName", name);
                 //urlConnection.setRequestProperty("password", pass);
                 try {
