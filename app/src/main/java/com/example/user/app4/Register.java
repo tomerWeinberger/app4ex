@@ -89,7 +89,6 @@ public class Register extends AppCompatActivity {
 
         signupButton.setEnabled(false);
 
-
         String name = usernameIn.getText().toString();
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
@@ -106,7 +105,7 @@ public class Register extends AppCompatActivity {
             iconNumber = "3";
         }
         mAuthTask = new UserRegisterTask(name,password,email,pvtName,iconNumber);
-
+        mAuthTask.execute();
     }
 
 
@@ -187,8 +186,8 @@ public class Register extends AppCompatActivity {
                 URL url = new URL("http://10.0.0.1:8080/Server/Register");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setReadTimeout(100000);
-                urlConnection.setConnectTimeout(150000);
+                urlConnection.setReadTimeout(200000);
+                urlConnection.setConnectTimeout(200000);
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestProperty("userName", name);

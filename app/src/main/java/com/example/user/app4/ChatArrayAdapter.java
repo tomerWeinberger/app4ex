@@ -33,10 +33,12 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         chatMessageList.remove(object);
         super.remove(object);
     }
+
     public ChatArrayAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
         this.context = context;
     }
+
     @Override
     public int getCount() {
         return this.chatMessageList.size();

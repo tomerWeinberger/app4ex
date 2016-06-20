@@ -188,18 +188,21 @@ public class Chat extends Activity {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
     }
 
     private void load(){
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
     }
 
     private boolean sendChatMessage() {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
         chatText.setText(" ");
         return true;
     }
@@ -261,7 +264,9 @@ public class Chat extends Activity {
                         ObjectMapper jsonMapper = new ObjectMapper();
                         List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
                         chatArrayAdapter.clear();
-                        chatArrayAdapter.addAll(l);
+                        for(int i=0;i<l.size();i++) {
+                            chatArrayAdapter.addAll(l.get(i));
+                        }
                     }catch(Exception e){
                         e.printStackTrace();
                     }
