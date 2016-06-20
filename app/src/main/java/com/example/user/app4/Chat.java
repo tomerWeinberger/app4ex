@@ -12,6 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -24,7 +25,20 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class Chat extends Activity {
 
@@ -42,6 +56,8 @@ public class Chat extends Activity {
     private static final int SHAKE_THRESHOLD = 800;
     private int mLastFirstVisibleItem;
     private boolean update;
+    private MsgTask mAuthTask;
+
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -172,11 +188,83 @@ public class Chat extends Activity {
     private void load(){
         chatText.setText("I got here-this is good!!!!");
     }
+
     private boolean sendChatMessage() {
-        chatArrayAdapter.add(new ChatMessage(this.username, chatText.getText().toString()));
-        chatText.setText("");
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp);
+        chatText.setText(" ");
         return true;
     }
 
+    public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
+        private final String action;
+        private final String sender;
+        private final String msg;
+        private final java.sql.Timestamp t;
 
+        MsgTask(String action, String u, String m, java.sql.Timestamp t) {
+            this.action = action;
+            this.sender = u;
+            this.t = t;
+            this.msg = m;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            try {
+                URL url = new URL("http://10.0.0.1:8080/Server/MsgController");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setReadTimeout(100000);
+                urlConnection.setConnectTimeout(150000);
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("action", this.action);
+                urlConnection.setRequestProperty("sender", this.sender);
+                urlConnection.setRequestProperty("time", this.t.toString());
+                urlConnection.setRequestProperty("msg", this.msg);
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                    StringBuilder responseStrBuilder = new StringBuilder();
+                    User.cookie = urlConnection.getHeaderField("Set-Cookie");
+                    String inputStr;
+                    while ((inputStr = streamReader.readLine()) != null)
+                        responseStrBuilder.append(inputStr);
+                    return new JSONObject(responseStrBuilder.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(final JSONObject json) {
+            try {
+                if (json.getString("msgCtrl_result") == "success") {
+                    ChatMessage cm = new ChatMessage(this.sender, this.msg,this.t);
+                    chatArrayAdapter.add(cm);
+                } else {
+                    List<ChatMessage> list = new ArrayList<ChatMessage>();
+                    JSONArray array = json.getJSONArray("interests");
+                    for(int i = 0 ; i < array.length() ; i++){
+//                        list.add(array.getJSONObject(i).);
+                    }
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+
+        }
+    }
 }

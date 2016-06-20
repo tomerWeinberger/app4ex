@@ -166,6 +166,7 @@ public class Register extends AppCompatActivity {
 
         return valid;
     }
+
     public class UserRegisterTask extends AsyncTask<Void, Void, JSONObject> {
         private final String name;
         private final String pass;
@@ -178,7 +179,6 @@ public class Register extends AppCompatActivity {
             this.email = email;
             this.icon = icon;
             this.pvtName = pvtName;
-
         }
 
         @Override
