@@ -20,11 +20,14 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -182,11 +185,15 @@ public class Chat extends Activity {
     }
 
     private void updateMessages(){
-        chatText.setText("I got here-this is good!!!!");
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp);
     }
 
     private void load(){
-        chatText.setText("I got here-this is good!!!!");
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp);
     }
 
     private boolean sendChatMessage() {
@@ -250,10 +257,13 @@ public class Chat extends Activity {
                     ChatMessage cm = new ChatMessage(this.sender, this.msg,this.t);
                     chatArrayAdapter.add(cm);
                 } else {
-                    List<ChatMessage> list = new ArrayList<ChatMessage>();
-                    JSONArray array = json.getJSONArray("interests");
-                    for(int i = 0 ; i < array.length() ; i++){
-//                        list.add(array.getJSONObject(i).);
+                    try{
+                        ObjectMapper jsonMapper = new ObjectMapper();
+                        List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
+                        chatArrayAdapter.clear();
+                        chatArrayAdapter.addAll(l);
+                    }catch(Exception e){
+                        e.printStackTrace();
                     }
                 }
             }catch (JSONException e){

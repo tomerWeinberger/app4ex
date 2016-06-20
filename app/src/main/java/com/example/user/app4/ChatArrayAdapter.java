@@ -27,6 +27,7 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
             remove(getItem(0));
         }
     }
+
     @Override
     public void remove(ChatMessage object) {
         chatMessageList.remove(object);

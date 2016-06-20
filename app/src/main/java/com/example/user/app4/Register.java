@@ -222,7 +222,8 @@ public class Register extends AppCompatActivity {
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
-                if (json.getString("register_result") == "success") {
+                String s = json.getString("register_result");
+                if (s.equals("success")) {
                     onSignupSuccess();
                 } else {
                     onSignupFailed();
