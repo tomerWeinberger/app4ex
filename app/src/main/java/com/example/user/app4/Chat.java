@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -72,6 +73,7 @@ public class Chat extends Activity {
         sensorManager.registerListener(listener,accelometer,
                 SensorManager.SENSOR_DELAY_GAME);
         mLastFirstVisibleItem = listView.getFirstVisiblePosition();
+        chatArrayAdapter.initializetoSee();
     }
 
     @Override
@@ -130,7 +132,7 @@ public class Chat extends Activity {
                     if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
                         if (currentFirstVisibleItem == 0) {
                             if(update)
-                                updateMessages(); //write what you want to do when you scroll up to the end of listview.
+                                loadTenMore(); //write what you want to do when you scroll up to the end of listview.
                             else
                                 update=true;
                         }
@@ -174,7 +176,7 @@ public class Chat extends Activity {
                         float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
 
                         if (speed > SHAKE_THRESHOLD) {
-                            load();
+                            updateMessages();
                         }
                         last_x = x;
                         last_y = y;
@@ -182,6 +184,18 @@ public class Chat extends Activity {
                     }
             }
         };
+        Thread thread = new Thread(new MyRunnable());
+        thread.start();
+    }
+
+    private class MyRunnable implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                SystemClock.sleep(300000);
+                updateMessages();
+            }
+        }
     }
 
     private void updateMessages(){
@@ -191,7 +205,7 @@ public class Chat extends Activity {
         mAuthTask.execute();
     }
 
-    private void load(){
+    private void loadTenMore(){
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp);
@@ -263,6 +277,7 @@ public class Chat extends Activity {
                     try{
                         ObjectMapper jsonMapper = new ObjectMapper();
                         List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
+                        chatArrayAdapter.addTenTolist();
                         chatArrayAdapter.clear();
                         for(int i=0;i<l.size();i++) {
                             chatArrayAdapter.addAll(l.get(i));

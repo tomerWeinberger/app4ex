@@ -79,6 +79,7 @@ public class Register extends AppCompatActivity {
 
             }
         });
+
     }
 
     public void signup() {
