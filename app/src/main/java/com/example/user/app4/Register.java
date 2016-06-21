@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -168,17 +169,14 @@ public class Register extends AppCompatActivity {
     }
 
     public class UserRegisterTask extends AsyncTask<Void, Void, JSONObject> {
-        private final String name;
-        private final String pass;
-        private  final String email;
-        private final String pvtName;
-        private final String icon;
+        private HashMapParser map;
         UserRegisterTask(String name, String pass,String email,String pvtName, String icon) {
-            this.name = name;
-            this.pass = pass;
-            this.email = email;
-            this.icon = icon;
-            this.pvtName = pvtName;
+            this.map = new HashMapParser();
+            map.put("userName",name);
+            map.put("password",pass);
+            this.map.put("logo", icon);
+            this.map.put("mail", email);
+            this.map.put("name", pvtName);
         }
 
         @Override
@@ -189,12 +187,12 @@ public class Register extends AppCompatActivity {
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
-                urlConnection.setRequestProperty("userName", name);
-                urlConnection.setRequestProperty("password", pass);
-                urlConnection.setRequestProperty("fb", icon);
-                urlConnection.setRequestProperty("mail", email);
-                urlConnection.setRequestProperty("name", pvtName);
                 try {
+                    //send the POST out
+                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+                    out.print(this.map.Parse());
+                    out.close();
+
                     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     StringBuilder responseStrBuilder = new StringBuilder();

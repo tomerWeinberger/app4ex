@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -125,12 +126,11 @@ public class Login extends AppCompatActivity {
     }
 
     public class UserLoginTask extends AsyncTask<Void, Void, JSONObject> {
-        private final String name;
-        private final String pass;
-
+        private HashMapParser map;
         UserLoginTask(String name, String pass) {
-            this.name = name;
-            this.pass = pass;
+            this.map = new HashMapParser();
+            map.put("userName",name);
+            map.put("password",pass);
         }
 
         @Override
@@ -139,13 +139,13 @@ public class Login extends AppCompatActivity {
                 URL url = new URL("http://172.18.13.47:8080/Server/MyLogin");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setReadTimeout(100000);
-                urlConnection.setConnectTimeout(150000);
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
-                //urlConnection.setRequestProperty("userName", name);
-                //urlConnection.setRequestProperty("password", pass);
                 try {
+                    //send the POST out
+                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+                    out.print(this.map.Parse());
+                    out.close();
                     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     StringBuilder responseStrBuilder = new StringBuilder();
@@ -171,7 +171,7 @@ public class Login extends AppCompatActivity {
         @Override
         protected void onPostExecute(final JSONObject json) {
           try {
-              if (json.getString("login_result") == "success") {
+              if (json.getString("login_result").equals("success")) {
                   onLoginSuccess();
               } else {
                   onLoginFailed();
