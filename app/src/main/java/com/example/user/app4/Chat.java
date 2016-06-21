@@ -27,8 +27,6 @@ import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
-import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +38,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -197,17 +197,17 @@ public class Chat extends Activity {
         mAuthTask.execute();
     }
 
-    private void loadTenMore(){
+    public void loadTenMore(){
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
     }
 
     private boolean sendChatMessage() {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
         chatText.setText(" ");
         return true;
@@ -224,8 +224,9 @@ public class Chat extends Activity {
             this.sender = u;
             this.t = t;
             this.msg = m;
+        private final String t;
         private HashMapParser map;
-        MsgTask(String action, String sender, String msg, java.sql.Timestamp t) {
+        MsgTask(String action, String sender, String msg, String t) {
             this.map = new HashMapParser();
             this.map.put("action", action);
             this.map.put("sender", sender);
@@ -274,29 +275,28 @@ public class Chat extends Activity {
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
-                if (json.getString("msgCtrl_result").equals("success")) {
-                    String s = json.getString("msgCtrl_msg");
-                    ObjectMapper jsonMapper = new ObjectMapper();
-                    ChatMessage cm = jsonMapper.readValue(s, ChatMessage.class);
-                    chatArrayAdapter.add(cm);
-                } else {
-                    try{
-                        ObjectMapper jsonMapper = new ObjectMapper();
-                        List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
-                        chatArrayAdapter.addTenTolist();
-                        chatArrayAdapter.clear();
-                        for(int i=0;i<l.size();i++) {
-                            chatArrayAdapter.add(l.get(i));
-                        }
-                    }catch(Exception e){
-                        e.printStackTrace();
+                String s = json.getString("msgCtrl_result");
+                if(s.equals("list")){
+                    JSONArray arr = (JSONArray) json.getJSONArray("list");
+                    chatArrayAdapter.addTenTolist();
+                    chatArrayAdapter.clear();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject j = arr.getJSONObject(i);
+                        String msg = j.getString("msg");
+                        String sender = j.getString("sender");
+                        String time = j.getString("time");
+                        chatArrayAdapter.add(new ChatMessage(sender,msg,time));
                     }
+                } else if (s.equals("success")) {
+                    ChatMessage cm = new ChatMessage(sender, msg, t);
+                    chatArrayAdapter.add(cm);
                 }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+            }catch(Exception e){
 
+                    e.printStackTrace();
+                }
+
+        }
         @Override
         protected void onCancelled() {
             mAuthTask = null;
