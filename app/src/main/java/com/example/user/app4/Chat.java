@@ -5,34 +5,28 @@ package com.example.user.app4;
  */
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
-
-import org.codehaus.jackson.type.TypeReference;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,9 +34,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.GregorianCalendar;
 
 public class Chat extends Activity {
 
@@ -89,7 +82,9 @@ public class Chat extends Activity {
         accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         setContentView(R.layout.activity_chat);
         Bundle extras = getIntent().getExtras();
-        username = extras.getString("name");
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = settings.edit();
+        username = settings.getString("username", "");
         buttonSend = (Button) findViewById(R.id.send);
         listView = (ListView) findViewById(R.id.msgview);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.msg);
@@ -176,7 +171,7 @@ public class Chat extends Activity {
                         float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
 
                         if (speed > SHAKE_THRESHOLD) {
-                            updateMessages();
+                            updateMessages("shake");
                         }
                         last_x = x;
                         last_y = y;
@@ -184,21 +179,12 @@ public class Chat extends Activity {
                     }
             }
         };
-        Thread thread = new Thread(new MyRunnable());
-        thread.start();
+       setNotify();
     }
 
-    private class MyRunnable implements Runnable {
-        @Override
-        public void run() {
-            while(true) {
-                SystemClock.sleep(300000);
-                updateMessages();
-            }
-        }
-    }
 
-    private void updateMessages(){
+
+    public void updateMessages(String choice){
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp);
@@ -226,6 +212,7 @@ public class Chat extends Activity {
         private final String sender;
         private final String msg;
         private final java.sql.Timestamp t;
+        private boolean notify;
 
         MsgTask(String action, String u, String m, java.sql.Timestamp t) {
             this.action = action;
@@ -233,7 +220,9 @@ public class Chat extends Activity {
             this.t = t;
             this.msg = m;
         }
-
+        public void setNotify(boolean toNot){
+            this.notify = toNot;
+        }
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
@@ -273,13 +262,13 @@ public class Chat extends Activity {
                     chatArrayAdapter.add(cm);
                 } else {
                     try{
-                        ObjectMapper jsonMapper = new ObjectMapper();
+                        /*ObjectMapper jsonMapper = new ObjectMapper();
                         List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
                         chatArrayAdapter.addTenTolist();
                         chatArrayAdapter.clear();
                         for(int i=0;i<l.size();i++) {
                             chatArrayAdapter.addAll(l.get(i));
-                        }
+                        }*/
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -294,5 +283,12 @@ public class Chat extends Activity {
             mAuthTask = null;
 
         }
+    }
+    public void setNotify(){
+        NotificationUpd.chat = this;
+        AlarmManager alramMg = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        Long timeTo = new GregorianCalendar().getTimeInMillis() + 5000;
+        Intent in = new Intent(this,NotificationUpd.class);
+        alramMg.set(AlarmManager.RTC_WAKEUP,timeTo, PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT));
     }
 }

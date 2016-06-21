@@ -9,10 +9,11 @@ import android.support.v4.app.NotificationCompat;
 /**
  * Created by user on 21/06/2016.
  */
-public class Notification extends BroadcastReceiver {
-
+public class NotificationUpd extends BroadcastReceiver {
+    public static  Chat chat = null;
     @Override
     public void onReceive(Context context, Intent intent) {
+        chat.updateMessages("time");
         NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.livechat)
                 .setContentTitle("new meseges")
