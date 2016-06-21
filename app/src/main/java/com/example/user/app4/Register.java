@@ -79,6 +79,7 @@ public class Register extends AppCompatActivity {
 
             }
         });
+
     }
 
     public void signup() {
@@ -88,7 +89,6 @@ public class Register extends AppCompatActivity {
         }
 
         signupButton.setEnabled(false);
-
 
         String name = usernameIn.getText().toString();
         String email = emailIn.getText().toString();
@@ -106,7 +106,7 @@ public class Register extends AppCompatActivity {
             iconNumber = "3";
         }
         mAuthTask = new UserRegisterTask(name,password,email,pvtName,iconNumber);
-
+        mAuthTask.execute();
     }
 
 
@@ -166,6 +166,7 @@ public class Register extends AppCompatActivity {
 
         return valid;
     }
+
     public class UserRegisterTask extends AsyncTask<Void, Void, JSONObject> {
         private final String name;
         private final String pass;
@@ -178,17 +179,14 @@ public class Register extends AppCompatActivity {
             this.email = email;
             this.icon = icon;
             this.pvtName = pvtName;
-
         }
 
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://10.0.0.1:8080/Server/Register");
+                URL url = new URL("http://172.18.13.47:8080/Server/Register");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setReadTimeout(100000);
-                urlConnection.setConnectTimeout(150000);
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestProperty("userName", name);
@@ -222,7 +220,8 @@ public class Register extends AppCompatActivity {
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
-                if (json.getString("register_result") == "success") {
+                String s = json.getString("register_result");
+                if (s.equals("success")) {
                     onSignupSuccess();
                 } else {
                     onSignupFailed();

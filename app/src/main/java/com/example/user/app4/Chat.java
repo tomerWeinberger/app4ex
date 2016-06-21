@@ -12,19 +12,37 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 public class Chat extends Activity {
 
@@ -42,6 +60,8 @@ public class Chat extends Activity {
     private static final int SHAKE_THRESHOLD = 800;
     private int mLastFirstVisibleItem;
     private boolean update;
+    private MsgTask mAuthTask;
+
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -53,6 +73,7 @@ public class Chat extends Activity {
         sensorManager.registerListener(listener,accelometer,
                 SensorManager.SENSOR_DELAY_GAME);
         mLastFirstVisibleItem = listView.getFirstVisiblePosition();
+        chatArrayAdapter.initializetoSee();
     }
 
     @Override
@@ -111,7 +132,7 @@ public class Chat extends Activity {
                     if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
                         if (currentFirstVisibleItem == 0) {
                             if(update)
-                                updateMessages(); //write what you want to do when you scroll up to the end of listview.
+                                loadTenMore(); //write what you want to do when you scroll up to the end of listview.
                             else
                                 update=true;
                         }
@@ -155,7 +176,7 @@ public class Chat extends Activity {
                         float speed = Math.abs(x+y+z - last_x - last_y - last_z) / diffTime * 10000;
 
                         if (speed > SHAKE_THRESHOLD) {
-                            load();
+                            updateMessages();
                         }
                         last_x = x;
                         last_y = y;
@@ -163,20 +184,115 @@ public class Chat extends Activity {
                     }
             }
         };
+        Thread thread = new Thread(new MyRunnable());
+        thread.start();
+    }
+
+    private class MyRunnable implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                SystemClock.sleep(300000);
+                updateMessages();
+            }
+        }
     }
 
     private void updateMessages(){
-        chatText.setText("I got here-this is good!!!!");
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
     }
 
-    private void load(){
-        chatText.setText("I got here-this is good!!!!");
+    private void loadTenMore(){
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
     }
+
     private boolean sendChatMessage() {
-        chatArrayAdapter.add(new ChatMessage(this.username, chatText.getText().toString()));
-        chatText.setText("");
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask.execute();
+        chatText.setText(" ");
         return true;
     }
 
+    public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
+        private final String action;
+        private final String sender;
+        private final String msg;
+        private final java.sql.Timestamp t;
 
+        MsgTask(String action, String u, String m, java.sql.Timestamp t) {
+            this.action = action;
+            this.sender = u;
+            this.t = t;
+            this.msg = m;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            try {
+                URL url = new URL("http://172.18.13.47:8080/Server/MsgController");
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                urlConnection.setRequestProperty("action", this.action);
+                urlConnection.setRequestProperty("sender", this.sender);
+                urlConnection.setRequestProperty("time", this.t.toString());
+                urlConnection.setRequestProperty("msg", this.msg);
+                try {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+                    StringBuilder responseStrBuilder = new StringBuilder();
+                    User.cookie = urlConnection.getHeaderField("Set-Cookie");
+                    String inputStr;
+                    while ((inputStr = streamReader.readLine()) != null)
+                        responseStrBuilder.append(inputStr);
+                    return new JSONObject(responseStrBuilder.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(final JSONObject json) {
+            try {
+                if (json.getString("msgCtrl_result") == "success") {
+                    ChatMessage cm = new ChatMessage(this.sender, this.msg,this.t);
+                    chatArrayAdapter.add(cm);
+                } else {
+                    try{
+                        ObjectMapper jsonMapper = new ObjectMapper();
+                        List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
+                        chatArrayAdapter.addTenTolist();
+                        chatArrayAdapter.clear();
+                        for(int i=0;i<l.size();i++) {
+                            chatArrayAdapter.addAll(l.get(i));
+                        }
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+
+        }
+    }
 }

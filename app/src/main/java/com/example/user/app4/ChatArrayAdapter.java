@@ -18,23 +18,34 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     private TextView chatText2;
     private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
     private Context context;
+    private int toSee;
 
     @Override
     public void add(ChatMessage object) {
         chatMessageList.add(object);
         super.add(object);
-        if(getCount() > 10){
+        if(getCount() > toSee){
             remove(getItem(0));
         }
     }
+
     @Override
     public void remove(ChatMessage object) {
         chatMessageList.remove(object);
         super.remove(object);
     }
+
     public ChatArrayAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
         this.context = context;
+        this.toSee = 10;
+    }
+    public void initializetoSee(){
+        this.toSee=10;
+    }
+
+    public void addTenTolist(){
+        this.toSee+=10;
     }
     @Override
     public int getCount() {
