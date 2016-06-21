@@ -237,11 +237,9 @@ public class Chat extends Activity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://10.0.0.1:8080/Server/MsgController");
+                URL url = new URL("http://172.18.13.47:8080/Server/MsgController");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setReadTimeout(100000);
-                urlConnection.setConnectTimeout(150000);
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
                 urlConnection.setRequestProperty("action", this.action);
