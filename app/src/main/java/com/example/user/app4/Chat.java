@@ -193,7 +193,7 @@ public class Chat extends Activity {
     public void updateMessages(String choice){
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp);
+        mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
     }
 
@@ -214,26 +214,21 @@ public class Chat extends Activity {
     }
 
     public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
-        private final String sender;
-        private final String msg;
-        private final java.sql.Timestamp t;
-        private boolean notify;
+        private String sender;
+        private String msg;
+        private String action;
+        private String time;
 
-        MsgTask(String action, String u, String m, java.sql.Timestamp t) {
-            this.action = action;
-            this.sender = u;
-            this.t = t;
-            this.msg = m;
-        private final String t;
+        private boolean notify;
         private HashMapParser map;
         MsgTask(String action, String sender, String msg, String t) {
             this.map = new HashMapParser();
             this.map.put("action", action);
             this.map.put("sender", sender);
-            this.map.put("time", t.toString());
+            this.map.put("time", t);
             this.map.put("msg", msg);
             this.sender = sender;
-            this.t=t;
+            this.time=t;
             this.msg=msg;
         }
         public void setNotify(boolean toNot){
@@ -288,7 +283,7 @@ public class Chat extends Activity {
                         chatArrayAdapter.add(new ChatMessage(sender,msg,time));
                     }
                 } else if (s.equals("success")) {
-                    ChatMessage cm = new ChatMessage(sender, msg, t);
+                    ChatMessage cm = new ChatMessage(sender, msg, time);
                     chatArrayAdapter.add(cm);
                 }
             }catch(Exception e){
