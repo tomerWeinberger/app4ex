@@ -72,10 +72,11 @@ public class Welcome extends AppCompatActivity {
         else if (settings.getString("username", "").equals("")) {
             intent = new Intent(Welcome.this, Login.class);
         }
-        else{
+        else {
             intent = new Intent(Welcome.this, Menu.class);
         }*/
         intent = new Intent(Welcome.this, Login.class);
+
         startActivity(intent);
     }
 }

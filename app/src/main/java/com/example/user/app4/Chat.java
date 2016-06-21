@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -62,19 +63,22 @@ public class Chat extends Activity {
     private int mLastFirstVisibleItem;
     private boolean update;
     private MsgTask mAuthTask;
-
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     private GoogleApiClient client;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private final long interval=300000;
+
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(listener,accelometer,
                 SensorManager.SENSOR_DELAY_GAME);
         mLastFirstVisibleItem = listView.getFirstVisiblePosition();
         chatArrayAdapter.initializetoSee();
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadTenMore();
+            }
+        });
     }
 
     @Override
@@ -156,6 +160,7 @@ public class Chat extends Activity {
                 currentVisibleItemCount = visibleItemCount;
             }
         });
+
         listener = new SensorEventListener() {
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -235,46 +240,21 @@ public class Chat extends Activity {
             this.time=t;
             this.msg=msg;
         }
+
         public void setNotify(boolean toNot){
             this.notify = toNot;
         }
+
         @Override
         protected JSONObject doInBackground(Void... params) {
-            try {
-                URL url = new URL(User.address+"MsgController");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
-                urlConnection.setDoOutput(true);
-
-                try {
-                    //send the POST out
-                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-                    out.print(this.map.Parse());
-                    out.close();
-
-                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                    BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                    StringBuilder responseStrBuilder = new StringBuilder();
-                    User.cookie = urlConnection.getHeaderField("Set-Cookie");
-                    String inputStr;
-                    while ((inputStr = streamReader.readLine()) != null)
-                        responseStrBuilder.append(inputStr);
-                    return new JSONObject(responseStrBuilder.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    urlConnection.disconnect();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
+            PostMsg pm = new PostMsg(User.address+"MsgController",this.map);
+            return pm.sendPostMsg();
         }
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
                 String s = json.getString("msgCtrl_result");
+                int prevSize = chatArrayAdapter.getCount();
                 if(s.equals("list")){
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
                     chatArrayAdapter.addTenTolist();
@@ -286,7 +266,7 @@ public class Chat extends Activity {
                         String time = j.getString("time");
                         chatArrayAdapter.add(new ChatMessage(sender,msg,time));
                     }
-                    if(notify == true){
+                    if(notify && chatArrayAdapter.getCount() > prevSize){
                         Context context = getApplicationContext();
                         NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
                                 .setSmallIcon(R.drawable.livechat)
@@ -305,18 +285,16 @@ public class Chat extends Activity {
                 e.printStackTrace();
             }
         }
-
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-
         }
     }
 
-    public void setNotifact(){
-        NotificationUpd.chat = this;
+    public void setNotifcat(){
+        NotificationUpd.chat = Chat.this;
         AlarmManager alramMg = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        Long timeTo = new GregorianCalendar().getTimeInMillis() + 5000;
+        Long timeTo = new GregorianCalendar().getTimeInMillis() + this.interval;
         Intent in = new Intent(this,NotificationUpd.class);
         alramMg.set(AlarmManager.RTC_WAKEUP,timeTo, PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT));
     }
