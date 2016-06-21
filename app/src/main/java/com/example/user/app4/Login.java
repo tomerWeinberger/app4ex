@@ -120,7 +120,6 @@ public class Login extends AppCompatActivity {
         editor.commit();
         loginButton.setEnabled(true);
         Intent in = new Intent(Login.this, Chat.class);
-        in.putExtra("name", nameText.getText().toString());
         startActivity(in);
         finish();
     }

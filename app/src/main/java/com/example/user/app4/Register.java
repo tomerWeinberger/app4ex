@@ -121,7 +121,6 @@ public class Register extends AppCompatActivity {
         editor.commit();
         signupButton.setEnabled(true);
         Intent in = new Intent(Register.this, Chat.class);
-        in.putExtra("name", usernameIn.getText().toString());
         startActivity(in);
         finish();
     }
