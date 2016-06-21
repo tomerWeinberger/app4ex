@@ -41,7 +41,7 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         this.toSee = 10;
     }
     public void initializetoSee(){
-        this.toSee=10;
+        this.toSee=5+5;
     }
 
     public void addTenTolist(){
