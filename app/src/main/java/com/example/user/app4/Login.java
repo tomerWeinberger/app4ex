@@ -135,7 +135,7 @@ public class Login extends AppCompatActivity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://172.18.13.47:8080/Server/MyLogin");
+                URL url = new URL(User.address+"MyLogin");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);

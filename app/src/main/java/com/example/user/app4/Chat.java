@@ -237,7 +237,7 @@ public class Chat extends Activity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://172.18.13.47:8080/Server/MsgController");
+                URL url = new URL(User.address+"MsgController");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
@@ -287,17 +287,17 @@ public class Chat extends Activity {
                     chatArrayAdapter.add(cm);
                 }
             }catch(Exception e){
-
-                    e.printStackTrace();
-                }
-
+                e.printStackTrace();
+            }
         }
+
         @Override
         protected void onCancelled() {
             mAuthTask = null;
 
         }
     }
+
     public void setNotify(){
         NotificationUpd.chat = this;
         AlarmManager alramMg = (AlarmManager)getSystemService(Context.ALARM_SERVICE);

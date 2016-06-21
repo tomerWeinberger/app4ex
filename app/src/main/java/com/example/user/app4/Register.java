@@ -181,7 +181,7 @@ public class Register extends AppCompatActivity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URL url = new URL("http://172.18.13.47:8080/Server/Register");
+                URL url = new URL(User.address+"Register");
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
