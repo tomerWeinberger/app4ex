@@ -6,6 +6,7 @@ package com.example.user.app4;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -25,8 +27,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -185,7 +185,7 @@ public class Chat extends Activity {
                     }
             }
         };
-       setNotify();
+        setNotifcat();
     }
 
 
@@ -194,6 +194,8 @@ public class Chat extends Activity {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp.toString());
+        if(choice.equals("time"))
+            mAuthTask.setNotify(true);
         mAuthTask.execute();
     }
 
@@ -219,7 +221,7 @@ public class Chat extends Activity {
         private String action;
         private String time;
 
-        private boolean notify;
+        private boolean notify = false;
         private HashMapParser map;
         MsgTask(String action, String sender, String msg, String t) {
             this.map = new HashMapParser();
@@ -282,6 +284,17 @@ public class Chat extends Activity {
                         String time = j.getString("time");
                         chatArrayAdapter.add(new ChatMessage(sender,msg,time));
                     }
+                    if(notify == true){
+                        Context context = getApplicationContext();
+                        NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.livechat)
+                                .setContentTitle("new meseges")
+                                .setContentText("new one");
+                        int notificationId = 001;
+                        NotificationManager notMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                        notMgr.notify(notificationId,mbuild.build());
+                        setNotifcat();
+                    }
                 } else if (s.equals("success")) {
                     ChatMessage cm = new ChatMessage(sender, msg, time);
                     chatArrayAdapter.add(cm);
@@ -298,7 +311,7 @@ public class Chat extends Activity {
 
         }
     }
-    public void setNotify(){
+    public void setNotifcat(){
         NotificationUpd.chat = this;
         AlarmManager alramMg = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
         Long timeTo = new GregorianCalendar().getTimeInMillis() + 5000;
