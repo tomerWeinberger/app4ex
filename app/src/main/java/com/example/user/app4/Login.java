@@ -143,8 +143,8 @@ public class Login extends AppCompatActivity {
                 urlConnection.setConnectTimeout(150000);
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
-                //urlConnection.setRequestProperty("userName", name);
-                //urlConnection.setRequestProperty("password", pass);
+                urlConnection.setRequestProperty("userName", name);
+                urlConnection.setRequestProperty("password", pass);
                 try {
                     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
