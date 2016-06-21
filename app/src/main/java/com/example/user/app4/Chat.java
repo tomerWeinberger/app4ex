@@ -25,6 +25,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedInputStream;
@@ -32,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
@@ -208,7 +214,6 @@ public class Chat extends Activity {
     }
 
     public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
-        private final String action;
         private final String sender;
         private final String msg;
         private final java.sql.Timestamp t;
@@ -219,6 +224,16 @@ public class Chat extends Activity {
             this.sender = u;
             this.t = t;
             this.msg = m;
+        private HashMapParser map;
+        MsgTask(String action, String sender, String msg, java.sql.Timestamp t) {
+            this.map = new HashMapParser();
+            this.map.put("action", action);
+            this.map.put("sender", sender);
+            this.map.put("time", t.toString());
+            this.map.put("msg", msg);
+            this.sender = sender;
+            this.t=t;
+            this.msg=msg;
         }
         public void setNotify(boolean toNot){
             this.notify = toNot;
@@ -231,11 +246,13 @@ public class Chat extends Activity {
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setDoInput(true);
                 urlConnection.setDoOutput(true);
-                urlConnection.setRequestProperty("action", this.action);
-                urlConnection.setRequestProperty("sender", this.sender);
-                urlConnection.setRequestProperty("time", this.t.toString());
-                urlConnection.setRequestProperty("msg", this.msg);
+
                 try {
+                    //send the POST out
+                    PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+                    out.print(this.map.Parse());
+                    out.close();
+
                     InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     StringBuilder responseStrBuilder = new StringBuilder();
@@ -257,23 +274,25 @@ public class Chat extends Activity {
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
-                if (json.getString("msgCtrl_result") == "success") {
-                    ChatMessage cm = new ChatMessage(this.sender, this.msg,this.t);
+                if (json.getString("msgCtrl_result").equals("success")) {
+                    String s = json.getString("msgCtrl_msg");
+                    ObjectMapper jsonMapper = new ObjectMapper();
+                    ChatMessage cm = jsonMapper.readValue(s, ChatMessage.class);
                     chatArrayAdapter.add(cm);
                 } else {
                     try{
-                        /*ObjectMapper jsonMapper = new ObjectMapper();
+                        ObjectMapper jsonMapper = new ObjectMapper();
                         List<ChatMessage> l = jsonMapper.readValue(json.toString(), new TypeReference<List<ChatMessage>>(){});
                         chatArrayAdapter.addTenTolist();
                         chatArrayAdapter.clear();
                         for(int i=0;i<l.size();i++) {
-                            chatArrayAdapter.addAll(l.get(i));
-                        }*/
+                            chatArrayAdapter.add(l.get(i));
+                        }
                     }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
-            }catch (JSONException e){
+            }catch (Exception e){
                 e.printStackTrace();
             }
         }

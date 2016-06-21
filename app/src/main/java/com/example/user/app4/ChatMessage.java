@@ -1,14 +1,16 @@
 package com.example.user.app4;
 
 public class ChatMessage {
-    public String message;
-    public String username;
-    public java.sql.Timestamp timeStamp;
-
-    public ChatMessage(String username,String message,java.sql.Timestamp t) {
+    public String msg;
+    public String sender;
+    public java.sql.Timestamp time;
+    public long msgNum;
+    public ChatMessage(String username,String message,java.sql.Timestamp t,long msgNum) {
         super();
-        this.message = message;
-        this.username = username;
-        this.timeStamp = t;
+        this.msg = message;
+        this.sender = username;
+        this.time = t;
+        this.msgNum = msgNum;
     }
+
 }
