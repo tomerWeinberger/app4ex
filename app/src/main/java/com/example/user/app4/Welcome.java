@@ -67,19 +67,20 @@ public class Welcome extends AppCompatActivity {
     private void directTo() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
+        //editor.clear();
+        editor.commit();
         Intent intent;
-        /*if(settings.getString("firstTime", "Yes").equals("Yes")){
+        if (settings.getString("firstTime", "Yes").equals("Yes")) {
             editor.putString("firstTime", "No");
             editor.commit();
             intent = new Intent(Welcome.this, Explenation.class);
-        }
-        else if (settings.getString("username", "").equals("")) {
+        } else if (settings.getString("username", "").equals("")) {
             intent = new Intent(Welcome.this, Login.class);
+        } else {
+            new LoginExist(settings.getString("username", ""), settings.getString("password", ""), Welcome.this).execute();
+            return;
         }
-        else {
-            intent = new Intent(Welcome.this, Menu.class);
-        }*/
-        intent = new Intent(Welcome.this, Login.class);//no need for it
         startActivity(intent);
+        finish();
     }
 }

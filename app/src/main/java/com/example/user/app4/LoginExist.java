@@ -75,9 +75,12 @@ public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
         try {
             if (json.getString("login_result").equals("success")) {
                 parent.startActivity(new Intent(parent, Chat.class));
+                parent.finish();
             } else {
                 parent.startActivity(new Intent(parent, Login.class));
+                parent.finish();
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
