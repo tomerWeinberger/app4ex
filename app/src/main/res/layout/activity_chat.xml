@@ -1,5 +1,5 @@
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/swiperefresh"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -34,6 +34,10 @@
         android:background="#efefef"
         android:orientation="vertical"
         tools:context=".MainActivity">
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swiperefresh"
+            android:layout_width="match_parent"
+            android:layout_height="400dp">
 
         <ListView
             android:id="@+id/msgview"
@@ -44,6 +48,7 @@
             android:divider="@null"
             android:stackFromBottom="true"
             android:transcriptMode="alwaysScroll"></ListView>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -67,4 +72,4 @@
 
         </LinearLayout>
     </LinearLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+</LinearLayout>

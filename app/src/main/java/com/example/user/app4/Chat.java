@@ -197,6 +197,7 @@ public class Chat extends Activity {
                     }
             }
         };
+        mSwipeRefreshLayout= (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         setNotifcat();
     }
 
