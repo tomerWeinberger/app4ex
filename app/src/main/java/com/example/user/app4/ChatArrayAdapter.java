@@ -41,6 +41,11 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }
     }
 
+    public void clearAll() {
+        for(int i=0;i<this.chatMessageList.size();i++)
+            this.chatMessageList.remove(i);
+       this.chatMessageList.clear();
+    }
     /*
     remove an object from list
      */
