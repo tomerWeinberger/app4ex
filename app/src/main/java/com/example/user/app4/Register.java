@@ -42,6 +42,10 @@ public class Register extends AppCompatActivity {
     private TextView loginLink;
     private RadioGroup raGroup;
     private UserRegisterTask mAuthTask;
+    /*
+    name oncreate
+    desc the func initialize all needed vars
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,14 +57,13 @@ public class Register extends AppCompatActivity {
         raGroup = (RadioGroup) findViewById(R.id.radioGroup);
         signupButton = (Button) findViewById(R.id.btn_signup);
         loginLink = (TextView) findViewById(R.id.link_login);
-
+        //set signup btn
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signup();
             }
         });
-
         loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,20 +80,22 @@ public class Register extends AppCompatActivity {
                 passwordIn.getText().clear();
                 nameIn.getText().clear();
                 emailIn.getText().clear();
-
             }
         });
-
     }
 
+    /*
+    the func tries to sign you up
+     */
     public void signup() {
+        //if input was wrong
         if (!validate()) {
             onSignupFailed();
             return;
         }
-
+        //else sign up!
         signupButton.setEnabled(false);
-
+        //get vars
         String name = usernameIn.getText().toString();
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
@@ -99,45 +104,55 @@ public class Register extends AppCompatActivity {
         String iconNumber = "";
         if (id == R.id.btn_icon1) {
             iconNumber = "1";
-        }
-        if (id == R.id.btn_icon2) {
+        }else if (id == R.id.btn_icon2) {
             iconNumber = "2";
-        }
-        if (id == R.id.btn_icon3) {
+        }else if (id == R.id.btn_icon3) {
             iconNumber = "3";
         }
+        //try to sign up with the server
         mAuthTask = new UserRegisterTask(name,password,email,pvtName,iconNumber);
         mAuthTask.execute();
     }
 
 
+    /*
+    the func transfer you on if the sign up was successful
+     */
     public void onSignupSuccess() {
         String name = usernameIn.getText().toString();
         String password = passwordIn.getText().toString();
+        //save it to SharedPreferences
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("username", name);
         editor.putString("password", password);
         editor.commit();
         signupButton.setEnabled(true);
+        //set new activity
         Intent in = new Intent(Register.this, Chat.class);
         startActivity(in);
         finish();
     }
 
+    /*
+    the func notifies user if sign up was wrong
+     */
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Register failed", Toast.LENGTH_LONG).show();
         signupButton.setEnabled(true);
     }
 
+    /*
+    the func validate all fields in activity
+     */
     public boolean validate() {
         boolean valid = true;
-
         String name = usernameIn.getText().toString();
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
         String namePvt = nameIn.getText().toString();
 
+        //for each field-if it is empty set an err msg
         if (name.isEmpty()) {
             usernameIn.setError("at least 1 characters");
             valid = false;
@@ -156,7 +171,6 @@ public class Register extends AppCompatActivity {
         } else {
             emailIn.setError(null);
         }
-
         if (password.isEmpty()) {
             passwordIn.setError("at least 1 characters");
             valid = false;
@@ -167,6 +181,9 @@ public class Register extends AppCompatActivity {
         return valid;
     }
 
+    /*
+    this class is in charch on the communication woth the server
+     */
     public class UserRegisterTask extends AsyncTask<Void, Void, JSONObject> {
         private HashMapParser map;
         UserRegisterTask(String name, String pass,String email,String pvtName, String icon) {
@@ -178,15 +195,24 @@ public class Register extends AppCompatActivity {
             this.map.put("name", pvtName);
         }
 
+        /*
+         namedoInBackground
+         desc:send the post request!!and return the json
+        */
         @Override
         protected JSONObject doInBackground(Void... params) {
             PostMsg pm = new PostMsg(User.address+"Register",this.map);
             return pm.sendPostMsg();
         }
 
+        /*
+         name onPostExecute
+         desc: take the json and act according to json answer
+         */
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
+                //get answer and determine if sign up was good or not
                 String s = json.getString("register_result");
                 if (s.equals("success")) {
                     onSignupSuccess();

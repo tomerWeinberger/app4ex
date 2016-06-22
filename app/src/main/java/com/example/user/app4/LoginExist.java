@@ -15,7 +15,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/*
 
+
+i think this is not used
+
+
+
+
+ */
 public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
     private final String name;
     private final String pass;
@@ -65,7 +73,7 @@ public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
     @Override
     protected void onPostExecute(final JSONObject json) {
         try {
-            if (json.getString("login_result") == "success") {
+            if (json.getString("login_result").equals("success")) {
                 parent.startActivity(new Intent(parent, Chat.class));
             } else {
                 parent.startActivity(new Intent(parent, Login.class));

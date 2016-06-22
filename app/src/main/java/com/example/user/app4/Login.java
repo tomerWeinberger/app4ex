@@ -48,7 +48,6 @@ public class Login extends AppCompatActivity {
         loginButton = (Button) findViewById(R.id.btn_login);
         regButton = (Button) findViewById(R.id.btn_Reg);
         passwordText = (EditText) findViewById(R.id.input_password);
-
         loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -56,7 +55,6 @@ public class Login extends AppCompatActivity {
                 login();
             }
         });
-
         regButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -69,24 +67,30 @@ public class Login extends AppCompatActivity {
         });
     }
 
+    /*
+    the func takes input and check if you can lg in
+     */
     private void login() {
+        //if var are not valid-reject
         if (!validate()) {
             onLoginFailed();
             return;
         }
-
         loginButton.setEnabled(false);
+        //ask for login permission from DB
         mAuthTask = new UserLoginTask(nameText.getText().toString(),passwordText.getText().toString());
         mAuthTask.execute();
-
     }
 
+    /*
+    the func validate all fields in the register activity
+     */
     private boolean validate() {
         boolean valid = true;
-
         String name = nameText.getText().toString();
         String password = passwordText.getText().toString();
 
+        //check if name id valid
         if (name.isEmpty()) {
             nameText.setError("enter a valid name");
             valid = false;
@@ -94,6 +98,7 @@ public class Login extends AppCompatActivity {
             nameText.setError(null);
         }
 
+        //check if pass id valid
         if (password.isEmpty()) {
             passwordText.setError("enter a valid password");
             valid = false;
@@ -101,16 +106,24 @@ public class Login extends AppCompatActivity {
             passwordText.setError(null);
         }
 
+        //return if it valid or not
         return valid;
     }
 
+    /*
+    describe actions when log in faild
+     */
     public void onLoginFailed() {
+        //make a toast
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
         loginButton.setEnabled(true);
     }
 
+    /*
+    dfines operation if login went good
+     */
     public void onLoginSuccess() {
+        //edit SharedPreferences
         String name = nameText.getText().toString();
         String password = passwordText.getText().toString();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -119,11 +132,15 @@ public class Login extends AppCompatActivity {
         editor.putString("password", password);
         editor.commit();
         loginButton.setEnabled(true);
+        //move to next activity
         Intent in = new Intent(Login.this, Chat.class);
         startActivity(in);
         finish();
     }
 
+    /*
+    this class is in charch on the communication woth the server
+     */
     public class UserLoginTask extends AsyncTask<Void, Void, JSONObject> {
         private HashMapParser map;
         UserLoginTask(String name, String pass) {
@@ -132,15 +149,24 @@ public class Login extends AppCompatActivity {
             map.put("password",pass);
         }
 
+        /*
+        namedoInBackground
+        desc:send the post request!!and return the json
+        */
         @Override
         protected JSONObject doInBackground(Void... params) {
             PostMsg pm = new PostMsg(User.address+"MyLogin",this.map);
             return pm.sendPostMsg();
         }
 
+        /*
+        name onPostExecute
+        desc: take the json and act according to json answer
+         */
         @Override
         protected void onPostExecute(final JSONObject json) {
           try {
+              //if login was good
               if (json.getString("login_result").equals("success")) {
                   onLoginSuccess();
               } else {

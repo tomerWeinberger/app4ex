@@ -7,6 +7,9 @@ public class ChatMessage {
     public String sender;
     public java.sql.Timestamp time;
     public long msgNum;
+    /*
+    c'tor
+     */
     public ChatMessage(String username,String message,String t) {
         super();
         this.msg = message;

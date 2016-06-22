@@ -59,7 +59,11 @@ public class Welcome extends AppCompatActivity {
         t.start();
     }
 
-
+    /*
+    name directTo
+    desc: according to our SharedPreferences the func directs us
+        to our desired page
+     */
     private void directTo() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
@@ -75,8 +79,7 @@ public class Welcome extends AppCompatActivity {
         else {
             intent = new Intent(Welcome.this, Menu.class);
         }*/
-        intent = new Intent(Welcome.this, Login.class);
-
+        intent = new Intent(Welcome.this, Login.class);//no need for it
         startActivity(intent);
     }
 }

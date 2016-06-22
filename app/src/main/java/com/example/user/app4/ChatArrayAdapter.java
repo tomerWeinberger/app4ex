@@ -16,45 +16,59 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
 
     private TextView chatText;
     private TextView chatText2;
-    private List<ChatMessage> chatMessageList = new ArrayList<ChatMessage>();
+    private List<ChatMessage> chatMessageList = new ArrayList<>();
     private Context context;
     private int toSee;
-
-    @Override
-    public void add(ChatMessage object) {
-        chatMessageList.add(object);
-        super.add(object);
-        if(getCount() > toSee){
-            remove(getItem(0));
-        }
-    }
-
-    @Override
-    public void remove(ChatMessage object) {
-        chatMessageList.remove(object);
-        super.remove(object);
-    }
 
     public ChatArrayAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
         this.context = context;
         this.toSee = 10;
     }
-    public void initializetoSee(){
-        this.toSee=5+5;
+
+    /*
+    name add
+    dsc the func add an object and if there are too much on the display
+        area-it delets the latest
+     */
+    @Override
+    public void add(ChatMessage object) {
+        chatMessageList.add(object);
+        super.add(object);
+        //if there too much
+        if(getCount() > toSee){
+            remove(getItem(0));
+        }
     }
 
+    /*
+    remove an object from list
+     */
+    @Override
+    public void remove(ChatMessage object) {
+        chatMessageList.remove(object);
+        super.remove(object);
+    }
+
+    //initialize first list length to 10
+    public void initializetoSee(){
+        this.toSee=10;
+    }
+    //add tem more if necceccarry
     public void addTenTolist(){
         this.toSee+=10;
     }
     @Override
-    public int getCount() {
-        return this.chatMessageList.size();
-    }
-
+    //get size of list
+    public int getCount() { return this.chatMessageList.size(); }
+    //get ith item
     public ChatMessage getItem(int index) {
         return this.chatMessageList.get(index);
     }
+
+    /*
+    the func present the msg
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ChatMessage chatMessageObj = getItem(position);

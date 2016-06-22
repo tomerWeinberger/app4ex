@@ -1,9 +1,5 @@
 package com.example.user.app4;
 
-/**
- * Created by user on 13/06/2016.
- */
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -28,21 +24,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -67,12 +50,20 @@ public class Chat extends Activity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private final long interval=300000;
 
+    /*
+    name:onResume
+    desc:this func activates once you resume activity
+     */
+    @Override
     protected void onResume() {
         super.onResume();
+        //register to shake listener
         sensorManager.registerListener(listener,accelometer,
                 SensorManager.SENSOR_DELAY_GAME);
-        mLastFirstVisibleItem = listView.getFirstVisiblePosition();
+        mLastFirstVisibleItem = listView.getFirstVisiblePosition();//dont need if refres works
+        //initialize list le
         chatArrayAdapter.initializetoSee();
+        //initialize swipe down refresh func
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -81,18 +72,29 @@ public class Chat extends Activity {
         });
     }
 
+    /*
+    name:onpause
+    desc: pre pause the program
+     */
     @Override
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(listener);
     }
 
+    /*
+    name:onCreate
+    desc:initialize important vars
+    */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //get the service for shake option
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //create the view
         setContentView(R.layout.activity_chat);
+        //initialize vars
         Bundle extras = getIntent().getExtras();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
@@ -101,6 +103,7 @@ public class Chat extends Activity {
         listView = (ListView) findViewById(R.id.msgview);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.msg);
         listView.setAdapter(chatArrayAdapter);
+        //initialize send btn and his function
         chatText = (EditText) findViewById(R.id.msg);
         chatText.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -116,9 +119,6 @@ public class Chat extends Activity {
                 sendChatMessage();
             }
         });
-
-        //listView.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        //listView.setAdapter(chatArrayAdapter);
 
         //to scroll the list view to bottom on data change
         chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -150,7 +150,6 @@ public class Chat extends Activity {
                     update = false;
                 }
                 mLastFirstVisibleItem = currentFirstVisibleItem;
-                return;
             }
 
             @Override
@@ -196,40 +195,66 @@ public class Chat extends Activity {
     }
 
 
-
+    /*
+    * name updateMessages
+    * desc: the func asks for an update of new msgs
+    * */
     public void updateMessages(String choice){
+        //get current time
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        //ask for msg from this time
         mAuthTask = new MsgTask("from",this.username, chatText.getText().toString(),currentTimestamp.toString());
+        //if action was asked not by user(but by time defs)
         if(choice.equals("time"))
             mAuthTask.setNotify(true);
         mAuthTask.execute();
     }
 
+    /*
+    name loadTenMore
+    dsc : the func asks for ten older msg
+     */
     public void loadTenMore(){
+        //get current time
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        //ask for msg up to this time
         mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
     }
 
+    /*
+    name sendChatMessage
+    desc the func send the msg you sent
+     */
     private boolean sendChatMessage() {
+        //get current time
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        //put msg in my display(b4 on everyones elses)
+        ChatMessage cm = new ChatMessage(this.username, chatText.getText().toString(),currentTimestamp.toString());
+        chatArrayAdapter.add(cm);
+        //ask for server to save the msg in DB
         mAuthTask = new MsgTask("save",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
         chatText.setText(" ");
         return true;
     }
 
+    /*
+    this class is in charch on the communication woth the server
+     */
     public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
         private String sender;
         private String msg;
         private String action;
         private String time;
-
         private boolean notify = false;
         private HashMapParser map;
+        /*
+        c'tor
+         */
         MsgTask(String action, String sender, String msg, String t) {
             this.map = new HashMapParser();
             this.map.put("action", action);
@@ -245,20 +270,32 @@ public class Chat extends Activity {
             this.notify = toNot;
         }
 
+        /*
+        namedoInBackground
+        desc:send the post request!!and return the json
+         */
         @Override
         protected JSONObject doInBackground(Void... params) {
             PostMsg pm = new PostMsg(User.address+"MsgController",this.map);
             return pm.sendPostMsg();
         }
+
+        /*
+        name onPostExecute
+        desc: take the json and act according to json answer
+         */
         @Override
         protected void onPostExecute(final JSONObject json) {
             try {
                 String s = json.getString("msgCtrl_result");
                 int prevSize = chatArrayAdapter.getCount();
+                //if a SELECT FROM MSG was activated
                 if(s.equals("list")){
+                    //parse the json object to lst of msg & send to our chatArrayAdapter
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
                     chatArrayAdapter.addTenTolist();
                     chatArrayAdapter.clear();
+                    //add msgs
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject j = arr.getJSONObject(i);
                         String msg = j.getString("msg");
@@ -266,7 +303,9 @@ public class Chat extends Activity {
                         String time = j.getString("time");
                         chatArrayAdapter.add(new ChatMessage(sender,msg,time));
                     }
-                    if(notify && chatArrayAdapter.getCount() > prevSize){
+                    //if i was aked to notify,and there are new msgs
+                    if(notify && chatArrayAdapter.getCount() > prevSize) {
+                        //set notifications properties
                         Context context = getApplicationContext();
                         NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
                                 .setSmallIcon(R.drawable.livechat)
@@ -274,12 +313,13 @@ public class Chat extends Activity {
                                 .setContentText("new one");
                         int notificationId = 001;
                         NotificationManager notMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-                        notMgr.notify(notificationId,mbuild.build());
+                        notMgr.notify(notificationId, mbuild.build());
+                        //start again the count untill next notification
                         setNotifcat();
                     }
+                    //if INSERT TO MSG was activated
                 } else if (s.equals("success")) {
-                    ChatMessage cm = new ChatMessage(sender, msg, time);
-                    chatArrayAdapter.add(cm);
+                    ;
                 }
             }catch(Exception e){
                 e.printStackTrace();
@@ -291,6 +331,10 @@ public class Chat extends Activity {
         }
     }
 
+    /*
+    name setNotifcat
+     desc create an notification requset in "interval" milisecond
+     */
     public void setNotifcat(){
         NotificationUpd.chat = Chat.this;
         AlarmManager alramMg = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
