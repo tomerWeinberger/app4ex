@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,11 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }
     }
 
+    public void clearAll() {
+        for(int i=0;i<this.chatMessageList.size();i++)
+            this.chatMessageList.remove(i);
+       this.chatMessageList.clear();
+    }
     /*
     remove an object from list
      */
@@ -78,7 +84,9 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         chatText = (TextView) row.findViewById(R.id.msgr);
         chatText2 = (TextView) row.findViewById(R.id.umsgr);
         chatText.setText(chatMessageObj.msg);
-        chatText2.setText(chatMessageObj.sender+" "+chatMessageObj.time.toString());
+        Timestamp t = chatMessageObj.time;
+        String time = String.valueOf(t.getHours())+":"+String.valueOf(t.getMinutes());
+        chatText2.setText(chatMessageObj.sender+" "+time);
         return row;
     }
 

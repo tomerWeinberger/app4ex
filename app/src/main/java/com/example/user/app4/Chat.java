@@ -308,7 +308,7 @@ public class Chat extends Activity {
                     //parse the json object to lst of msg & send to our chatArrayAdapter
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
                     chatArrayAdapter.addTenTolist();
-                    chatArrayAdapter.clear();
+                    chatArrayAdapter.clearAll();
                     //add msgs
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject j = arr.getJSONObject(i);
