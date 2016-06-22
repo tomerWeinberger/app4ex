@@ -70,7 +70,7 @@ public class Welcome extends AppCompatActivity {
         //editor.clear();
         //editor.commit();
         Intent intent;
-        /*if (settings.getString("firstTime", "Yes").equals("Yes")) {
+        if (settings.getString("firstTime", "Yes").equals("Yes")) {
             editor.putString("firstTime", "No");
             editor.commit();
             intent = new Intent(Welcome.this, Explenation.class);
@@ -79,9 +79,8 @@ public class Welcome extends AppCompatActivity {
         } else {
             new LoginExist(settings.getString("username", ""), settings.getString("password", ""), Welcome.this).execute();
             return;
-        }*/
-        intent = new Intent(Welcome.this, Login.class);
-
+        }
+       // intent = new Intent(Welcome.this, Login.class);
         startActivity(intent);
         finish();
     }

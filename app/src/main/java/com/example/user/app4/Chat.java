@@ -197,6 +197,7 @@ public class Chat extends Activity {
                     }
             }
         };
+        mSwipeRefreshLayout= (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         //get current time
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
