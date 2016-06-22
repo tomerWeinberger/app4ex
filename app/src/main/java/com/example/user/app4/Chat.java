@@ -2,6 +2,7 @@ package com.example.user.app4;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -12,6 +13,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -26,6 +30,8 @@ import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.net.URL;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -306,16 +312,7 @@ public class Chat extends Activity {
                     //if i was aked to notify,and there are new msgs
                     if(notify && chatArrayAdapter.getCount() > prevSize) {
                         //set notifications properties
-                        Context context = getApplicationContext();
-                        NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
-                                .setSmallIcon(R.drawable.livechat)
-                                .setContentTitle("new meseges")
-                                .setContentText("new one");
-                        int notificationId = 001;
-                        NotificationManager notMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-                        notMgr.notify(notificationId, mbuild.build());
-                        //start again the count untill next notification
-                        setNotifcat();
+                        NotyAlram();
                     }
                     //if INSERT TO MSG was activated
                 } else if (s.equals("success")) {
@@ -341,5 +338,24 @@ public class Chat extends Activity {
         Long timeTo = new GregorianCalendar().getTimeInMillis() + this.interval;
         Intent in = new Intent(this,NotificationUpd.class);
         alramMg.set(AlarmManager.RTC_WAKEUP,timeTo, PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    public void NotyAlram(){
+        Context context = getApplicationContext();
+        NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("new meseges")
+                .setContentText("new one")
+                .setAutoCancel(true);
+        Uri alarnSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mbuild.setSound(alarnSound);
+        int notificationId = 001;
+        Intent intent = new Intent(this,Chat.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pIntent = PendingIntent.getActivity(context,0,intent,0);
+        mbuild.setContentIntent(pIntent);
+        NotificationManager notMgr = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+        notMgr.notify(notificationId, mbuild.build());
+        //start again the count untill next notification
+        setNotifcat();
     }
 }
