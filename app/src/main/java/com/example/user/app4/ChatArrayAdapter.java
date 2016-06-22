@@ -78,7 +78,7 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         chatText = (TextView) row.findViewById(R.id.msgr);
         chatText2 = (TextView) row.findViewById(R.id.umsgr);
         chatText.setText(chatMessageObj.msg);
-        chatText2.setText(chatMessageObj.sender);
+        chatText2.setText(chatMessageObj.sender+" "+chatMessageObj.time.toString());
         return row;
     }
 

@@ -197,6 +197,12 @@ public class Chat extends Activity {
                     }
             }
         };
+        //get current time
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        //ask for msg up to this time
+        mAuthTask = new MsgTask("to",this.username, " ",currentTimestamp.toString());
+        mAuthTask.execute();
         setNotifcat();
     }
 
