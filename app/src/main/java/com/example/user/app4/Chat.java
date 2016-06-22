@@ -349,7 +349,7 @@ public class Chat extends Activity {
         Uri alarnSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         mbuild.setSound(alarnSound);
         int notificationId = 001;
-        Intent intent = new Intent(this,Chat.class);
+        Intent intent = new Intent(context,Chat.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pIntent = PendingIntent.getActivity(context,0,intent,0);
         mbuild.setContentIntent(pIntent);
