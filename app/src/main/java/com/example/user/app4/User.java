@@ -5,6 +5,6 @@ package com.example.user.app4;
  */
 public class User {
     public static String cookie = null;
-    public static String address = "http://10.0.0.1:8080/Server/";
+    public static String address = "http://advprog.cs.biu.ac.il:8080/lastPl/";
 
 }

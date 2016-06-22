@@ -28,46 +28,22 @@ public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
     private final String name;
     private final String pass;
     private Activity parent;
+    private HashMapParser map;
 
     LoginExist(String name, String pass, Activity parent) {
         this.name = name;
         this.pass = pass;
         this.parent = parent;
+        this.map = new HashMapParser();
+        map.put("userName",name);
+        map.put("password",pass);
     }
 
     @Override
     protected JSONObject doInBackground(Void... params) {
-        try {
-            URL url = new URL("http://172.18.13.47:8080/Server/MyLogin");
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setReadTimeout(100000);
-            urlConnection.setConnectTimeout(150000);
-            urlConnection.setDoInput(true);
-            urlConnection.setDoOutput(true);
-            urlConnection.setRequestProperty("userName", name);
-            urlConnection.setRequestProperty("password", pass);
-            try {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                StringBuilder responseStrBuilder = new StringBuilder();
-                User.cookie = urlConnection.getHeaderField("Set-Cookie");
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null)
-                    responseStrBuilder.append(inputStr);
 
-                return new JSONObject(responseStrBuilder.toString());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        PostMsg pm = new PostMsg(User.address+"MyLogin",this.map);
+        return pm.sendPostMsg();
     }
 
     @Override
