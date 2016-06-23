@@ -122,7 +122,7 @@ public class Register extends AppCompatActivity {
     the func notifies user if sign up was wrong
      */
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Register failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), R.string.regFailed, Toast.LENGTH_LONG).show();
         signupButton.setEnabled(true);
     }
 

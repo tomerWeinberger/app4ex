@@ -97,7 +97,7 @@ public class Chat extends Activity {
         mSensorListener.setOnShakeListener(new ShakeIt.OnShakeListener() {
 
             public void onShake() {
-                Toast.makeText(Chat.this, getString(R.string.first_msg), Toast.LENGTH_LONG).show();
+                Toast.makeText(Chat.this, getString(R.string.onShake), Toast.LENGTH_LONG).show();
                 updateMessages("shake");
             }
         });
@@ -294,8 +294,8 @@ public class Chat extends Activity {
         Context context = getApplicationContext();
         NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("new meseges")
-                .setContentText("new one")
+                .setContentTitle(getString(R.string.newMsg1))
+                .setContentText(getString(R.string.newMsg2))
                 .setAutoCancel(true);
         Uri alarnSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         mbuild.setSound(alarnSound);

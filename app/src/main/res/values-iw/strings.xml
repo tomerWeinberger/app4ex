@@ -28,4 +28,9 @@
     <string name="title_activity_manual">מדריך</string>
     <string name="send">שלח</string>
     <string name="type_text">הקלד הודעה</string>
+    <string name="onShake">טוען מחדש</string>
+    <string name="newMsg1">הודעות חדשות</string>
+    <string name="newMsg2">הקלק לפתיחה</string>
+    <string name="regFailed">הרשמה נכשלה</string>
+    <string name="noChar">לפחות תו אחד</string>
 </resources>
