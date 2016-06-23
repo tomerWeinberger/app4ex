@@ -54,7 +54,7 @@ public class Chat extends Activity {
     private MsgTask mAuthTask;
     private GoogleApiClient client;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private final long interval=300000;
+    private final long interval=5000;//300000;
 
     /*
     name:onResume
@@ -74,6 +74,7 @@ public class Chat extends Activity {
             @Override
             public void onRefresh() {
                 loadTenMore();
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
