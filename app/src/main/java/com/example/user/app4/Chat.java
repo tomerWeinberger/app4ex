@@ -27,6 +27,7 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 
@@ -59,8 +60,9 @@ public class Chat extends Activity {
     private MsgTask mAuthTask;
     private GoogleApiClient client;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private final long interval = 10000;//300000;
-
+    private final long interval = 300000;
+    private SensorManager mSensorManager;
+    private ShakeIt mSensorListener;
 
     /*
     name:onResume
@@ -70,8 +72,11 @@ public class Chat extends Activity {
     protected void onResume() {
         super.onResume();
         //register to shake listener
-        sensorManager.registerListener(listener, accelometer,
-                SensorManager.SENSOR_DELAY_GAME);
+        /*sensorManager.registerListener(listener, accelometer,
+                SensorManager.SENSOR_DELAY_GAME);*/
+        mSensorManager.registerListener(mSensorListener,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_UI);
         mLastFirstVisibleItem = listView.getFirstVisiblePosition();//dont need if refres works
         //initialize list le
         chatArrayAdapter.initializetoSee();
@@ -91,8 +96,10 @@ public class Chat extends Activity {
      */
     @Override
     protected void onPause() {
+        mSensorManager.unregisterListener(mSensorListener);
         super.onPause();
-        sensorManager.unregisterListener(listener);
+        //sensorManager.unregisterListener(listener);
+
     }
 
     /*
@@ -103,8 +110,8 @@ public class Chat extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //get the service for shake option
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        /*sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);*/
         //create the view
         setContentView(R.layout.activity_chat);
         //initialize vars
@@ -174,7 +181,7 @@ public class Chat extends Activity {
             }
         });
 
-        listener = new SensorEventListener() {
+        /*listener = new SensorEventListener() {
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
                 //i dont need this function
@@ -205,7 +212,17 @@ public class Chat extends Activity {
                     last_z = z;
                 }
             }
-        };
+        };*/
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorListener = new ShakeIt();
+        // sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorListener.setOnShakeListener(new ShakeIt.OnShakeListener() {
+
+            public void onShake() {
+                Toast.makeText(Chat.this, getString(R.string.first_msg), Toast.LENGTH_LONG).show();
+                updateMessages("shake");
+            }
+        });
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         //get current time
         Calendar calendar = Calendar.getInstance();
