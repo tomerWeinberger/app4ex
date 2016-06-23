@@ -11,10 +11,8 @@ import android.hardware.SensorManager;
  */
 public class ShakeIt implements SensorEventListener {
 
-
     /** Minimum movement force to consider. */
     private static final int MIN_FORCE = 20;
-
     /**
      * Minimum times in a shake gesture that the direction of movement needs to
      * change.
@@ -52,7 +50,6 @@ public class ShakeIt implements SensorEventListener {
      * Interface for shake gesture.
      */
     public interface OnShakeListener {
-
         /**
          * Called when shake gesture is detected.
          */
@@ -72,34 +69,26 @@ public class ShakeIt implements SensorEventListener {
 
         // calculate movement
         float totalMovement = Math.abs(x + y + z - lastX - lastY - lastZ);
-
         if (totalMovement > MIN_FORCE) {
-
             // get time
             long now = System.currentTimeMillis();
-
             // store first movement time
             if (mFirstDirectionChangeTime == 0) {
                 mFirstDirectionChangeTime = now;
                 mLastDirectionChangeTime = now;
             }
-
             // check if the last movement was not long ago
             long lastChangeWasAgo = now - mLastDirectionChangeTime;
             if (lastChangeWasAgo < MAX_PAUSE_BETHWEEN_DIRECTION_CHANGE) {
-
                 // store movement data
                 mLastDirectionChangeTime = now;
                 mDirectionChangeCount++;
-
                 // store last sensor data
                 lastX = x;
                 lastY = y;
                 lastZ = z;
-
                 // check how many movements are so far
                 if (mDirectionChangeCount >= MIN_DIRECTION_CHANGE) {
-
                     // check total duration
                     long totalDuration = now - mFirstDirectionChangeTime;
                     if (totalDuration < MAX_TOTAL_DURATION_OF_SHAKE) {
@@ -107,7 +96,6 @@ public class ShakeIt implements SensorEventListener {
                         resetShakeParameters();
                     }
                 }
-
             } else {
                 resetShakeParameters();
             }

@@ -33,19 +33,19 @@ public class PostMsg {
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
             //send the POST out
-                PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-                out.print(this.hmp.Parse());
-                out.close();
+             PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+             out.print(this.hmp.Parse());
+             out.close();
             //ask for the incoming answer
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                StringBuilder responseStrBuilder = new StringBuilder();
-                User.cookie = urlConnection.getHeaderField("Set-Cookie");
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null)
-                    responseStrBuilder.append(inputStr);
+             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+             BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+             StringBuilder responseStrBuilder = new StringBuilder();
+             User.cookie = urlConnection.getHeaderField("Set-Cookie");
+             String inputStr;
+             while ((inputStr = streamReader.readLine()) != null)
+                 responseStrBuilder.append(inputStr);
             //return answer as json
-                return new JSONObject(responseStrBuilder.toString());
+             return new JSONObject(responseStrBuilder.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }finally{

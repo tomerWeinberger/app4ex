@@ -27,8 +27,11 @@ public class Welcome extends AppCompatActivity {
         startMsg();
     }
 
+    /*
+    name startmsg
+    desc:start msgs in new threads
+     */
     private void startMsg() {
-
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -51,9 +54,7 @@ public class Welcome extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
                 directTo();
-
             }
         });
         t.start();
@@ -67,9 +68,8 @@ public class Welcome extends AppCompatActivity {
     private void directTo() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = settings.edit();
-        //editor.clear();
-        //editor.commit();
         Intent intent;
+        //according to your SharedPreferences we know to which activity to transfer you
         if (settings.getString("firstTime", "Yes").equals("Yes")) {
             editor.putString("firstTime", "No");
             editor.commit();
@@ -80,7 +80,6 @@ public class Welcome extends AppCompatActivity {
             new LoginExist(settings.getString("username", ""), settings.getString("password", ""), Welcome.this).execute();
             return;
         }
-       // intent = new Intent(Welcome.this, Login.class);
         startActivity(intent);
         finish();
     }

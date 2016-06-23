@@ -25,14 +25,10 @@ i think this is not used
 
  */
 public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
-    private final String name;
-    private final String pass;
     private Activity parent;
     private HashMapParser map;
 
     LoginExist(String name, String pass, Activity parent) {
-        this.name = name;
-        this.pass = pass;
         this.parent = parent;
         this.map = new HashMapParser();
         map.put("userName",name);
@@ -56,7 +52,6 @@ public class LoginExist extends AsyncTask<Void, Void, JSONObject> {
                 parent.startActivity(new Intent(parent, Login.class));
                 parent.finish();
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

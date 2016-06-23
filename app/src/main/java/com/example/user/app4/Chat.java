@@ -49,20 +49,78 @@ public class Chat extends Activity {
     private EditText chatText;
     private Button buttonSend;
     private String username;
-    private SensorManager sensorManager;
-    private SensorEventListener listener;
-    private Sensor accelometer;
-    private long lastUpdate;
-    private float last_x, last_y, last_z;
-    private static final int SHAKE_THRESHOLD = 800;
-    private int mLastFirstVisibleItem;
-    private boolean update;
     private MsgTask mAuthTask;
-    private GoogleApiClient client;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private final long interval = 300000;
     private SensorManager mSensorManager;
     private ShakeIt mSensorListener;
+
+
+    /*
+    name:onCreate
+    desc:initialize important vars
+    */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //get the service for shake option
+        //create the view
+        setContentView(R.layout.activity_chat);
+        //initialize vars
+        Bundle extras = getIntent().getExtras();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = settings.edit();
+        username = settings.getString("username", "");
+        buttonSend = (Button) findViewById(R.id.send);
+        listView = (ListView) findViewById(R.id.msgview);
+        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.msg);
+        listView.setAdapter(chatArrayAdapter);
+        //initialize send btn and his function
+        chatText = (EditText) findViewById(R.id.msg);
+        //defined action if i press send ot "enter"
+        chatText.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    return sendChatMessage();
+                }
+                return false;
+            }
+        });
+        //initiate refresh action
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                sendChatMessage();
+            }
+        });
+        //to scroll the list view to bottom on data change
+        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                listView.setSelection(chatArrayAdapter.getCount() - 1);
+            }
+        });
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensorListener = new ShakeIt();
+        //define shake action
+        mSensorListener.setOnShakeListener(new ShakeIt.OnShakeListener() {
+
+            public void onShake() {
+                Toast.makeText(Chat.this, getString(R.string.first_msg), Toast.LENGTH_LONG).show();
+                updateMessages("shake");
+            }
+        });
+        //ask for the last tem msg
+        //get current time
+        Calendar calendar = Calendar.getInstance();
+        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        //ask for msg up to this time
+        mAuthTask = new MsgTask("to", this.username, "msg", currentTimestamp.toString());
+        mAuthTask.execute();
+        setNotifcat();
+    }
 
     /*
     name:onResume
@@ -72,12 +130,9 @@ public class Chat extends Activity {
     protected void onResume() {
         super.onResume();
         //register to shake listener
-        /*sensorManager.registerListener(listener, accelometer,
-                SensorManager.SENSOR_DELAY_GAME);*/
         mSensorManager.registerListener(mSensorListener,
                 mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_UI);
-        mLastFirstVisibleItem = listView.getFirstVisiblePosition();//dont need if refres works
         //initialize list le
         chatArrayAdapter.initializetoSee();
         //initialize swipe down refresh func
@@ -98,141 +153,7 @@ public class Chat extends Activity {
     protected void onPause() {
         mSensorManager.unregisterListener(mSensorListener);
         super.onPause();
-        //sensorManager.unregisterListener(listener);
-
     }
-
-    /*
-    name:onCreate
-    desc:initialize important vars
-    */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //get the service for shake option
-        /*sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);*/
-        //create the view
-        setContentView(R.layout.activity_chat);
-        //initialize vars
-        Bundle extras = getIntent().getExtras();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = settings.edit();
-        username = settings.getString("username", "");
-        buttonSend = (Button) findViewById(R.id.send);
-        listView = (ListView) findViewById(R.id.msgview);
-        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.msg);
-        listView.setAdapter(chatArrayAdapter);
-        //initialize send btn and his function
-        chatText = (EditText) findViewById(R.id.msg);
-        chatText.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    return sendChatMessage();
-                }
-                return false;
-            }
-        });
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                sendChatMessage();
-            }
-        });
-
-        //to scroll the list view to bottom on data change
-        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                listView.setSelection(chatArrayAdapter.getCount() - 1);
-            }
-        });
-
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            int currentFirstVisibleItem;
-            int currentVisibleItemCount;
-
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                int currentFirstVisibleItem = listView.getFirstVisiblePosition();
-                if (currentFirstVisibleItem <= mLastFirstVisibleItem) {
-                    if (currentVisibleItemCount > 0 && scrollState == SCROLL_STATE_IDLE) {
-                        if (currentFirstVisibleItem == 0) {
-                            if (update)
-                                loadTenMore(); //write what you want to do when you scroll up to the end of listview.
-                            else
-                                update = true;
-                        }
-                    } else {
-                        listView.scrollBy(0, 10);
-                    }
-                } else {
-                    update = false;
-                }
-                mLastFirstVisibleItem = currentFirstVisibleItem;
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-                                 int totalItemCount) {
-                currentFirstVisibleItem = firstVisibleItem;
-                currentVisibleItemCount = visibleItemCount;
-            }
-        });
-
-        /*listener = new SensorEventListener() {
-            @Override
-            public void onAccuracyChanged(Sensor sensor, int accuracy) {
-                //i dont need this function
-                long curTime = System.currentTimeMillis();
-            }
-
-            @Override
-            public void onSensorChanged(SensorEvent event) {
-
-                if (event.sensor.getType() != SensorManager.SENSOR_ACCELEROMETER) return;
-                long curTime = System.currentTimeMillis();
-                // only allow one update every 100ms.
-                if ((curTime - lastUpdate) > 100) {
-                    long diffTime = (curTime - lastUpdate);
-                    lastUpdate = curTime;
-
-                    float x = event.values[SensorManager.DATA_X];
-                    float y = event.values[SensorManager.DATA_Y];
-                    float z = event.values[SensorManager.DATA_Z];
-
-                    float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
-
-                    if (speed > SHAKE_THRESHOLD) {
-                        updateMessages("shake");
-                    }
-                    last_x = x;
-                    last_y = y;
-                    last_z = z;
-                }
-            }
-        };*/
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSensorListener = new ShakeIt();
-        // sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorListener.setOnShakeListener(new ShakeIt.OnShakeListener() {
-
-            public void onShake() {
-                Toast.makeText(Chat.this, getString(R.string.first_msg), Toast.LENGTH_LONG).show();
-                updateMessages("shake");
-            }
-        });
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
-        //get current time
-        Calendar calendar = Calendar.getInstance();
-        java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
-        //ask for msg up to this time
-        mAuthTask = new MsgTask("to", this.username, "hghg", currentTimestamp.toString());
-        mAuthTask.execute();
-        setNotifcat();
-    }
-
 
     /*
     * name updateMessages
@@ -286,11 +207,7 @@ public class Chat extends Activity {
     this class is in charch on the communication woth the server
      */
     public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
-        private String sender;
-        private String msg;
-        private String time;
         private String action;
-
         private boolean notify = false;
         private HashMapParser map;
 
@@ -304,9 +221,6 @@ public class Chat extends Activity {
             this.map.put("sender", sender);
             this.map.put("time", t);
             this.map.put("msg", msg);
-            this.sender = sender;
-            this.time = t;
-            this.msg = msg;
         }
 
         public void setNotify(boolean toNot) {
@@ -331,13 +245,12 @@ public class Chat extends Activity {
         protected void onPostExecute(final JSONObject json) {
             try {
                 String s = json.getString("msgCtrl_result");
-                int prevSize = chatArrayAdapter.getCount();
                 //if a SELECT FROM MSG was activated
                 if (s.equals("list")) {
                     //parse the json object to lst of msg & send to our chatArrayAdapter
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
-                    List<ChatMessage> chatMessageList = new ArrayList<>();
                     Timestamp firstMsgTime;
+                    //adapt list - if its an empty list before
                     if (chatArrayAdapter.getList().size() == 0) {
                         Calendar calendar = Calendar.getInstance();
                         firstMsgTime = new java.sql.Timestamp(calendar.getTime().getTime());
@@ -345,37 +258,24 @@ public class Chat extends Activity {
                         firstMsgTime = chatArrayAdapter.getList().get(0).time;
                     }
                     //add msgs
-                    for (int i = 0; i < arr.length(); i++) {
-                        JSONObject j = arr.getJSONObject(i);
-                        String msg = j.getString("msg");
-                        String sender = j.getString("sender");
-                        String time = j.getString("time");
-                        if (action.equals("to")) {
-                            if (Timestamp.valueOf(time).before(firstMsgTime))
-                                chatMessageList.add(new ChatMessage(sender, msg, time));
-                        } else if (action.equals("from")) {
-                            chatMessageList.add(new ChatMessage(sender, msg, time));
-                        }
-                    }
-                    chatMessageList = chatArrayAdapter.sort(chatMessageList);
+                    List<ChatMessage> chatMessageList = chatArrayAdapter.ConvertJsonToList(arr,action,firstMsgTime);
                     boolean differ = false;
                     if(notify) {
                         List<ChatMessage> copy = chatArrayAdapter.Copy();
                         chatArrayAdapter.setList(chatMessageList,action);
+                        //set a variable to know if a change was made in the list
                         differ = chatArrayAdapter.Differ(copy);
                     } else {
                         chatArrayAdapter.setList(chatMessageList, action);
                     }
-                    //if i was aked to notify,and there are new msgs
+                    //if i was aked to notify,and there are new msgs-or the list was changed
                     if (notify && differ) {
                         //set notifications properties
                         NotyAlram();
-                    }else if(notify){
+                        //if i was asked to notify but there are no new msg to load
+                    } else if(notify) {
                         setNotifcat();
                     }
-                    //if INSERT TO MSG was activated
-                } else if (s.equals("success")) {
-                    ;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -397,7 +297,8 @@ public class Chat extends Activity {
         AlarmManager alramMg = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Long timeTo = new GregorianCalendar().getTimeInMillis() + this.interval;
         Intent in = new Intent(this, NotificationUpd.class);
-        alramMg.set(AlarmManager.RTC_WAKEUP, timeTo, PendingIntent.getBroadcast(this, 0, in, PendingIntent.FLAG_UPDATE_CURRENT));
+        alramMg.set(AlarmManager.RTC_WAKEUP, timeTo, PendingIntent.getBroadcast(
+                                this, 0, in, PendingIntent.FLAG_UPDATE_CURRENT));
     }
 
     public void NotyAlram() {

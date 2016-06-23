@@ -43,6 +43,7 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //set page vars
         setContentView(R.layout.activity_login);
         nameText = (EditText) findViewById(R.id.input_name);
         loginButton = (Button) findViewById(R.id.btn_login);
@@ -89,7 +90,6 @@ public class Login extends AppCompatActivity {
         boolean valid = true;
         String name = nameText.getText().toString();
         String password = passwordText.getText().toString();
-
         //check if name id valid
         if (name.isEmpty()) {
             nameText.setError("enter a valid name");

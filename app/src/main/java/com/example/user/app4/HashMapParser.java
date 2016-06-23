@@ -28,7 +28,6 @@ public class HashMapParser {
             s += entry.getKey()+"="+entry.getValue()+"&";
         }
         s = s.substring(0,s.length() -1);
-
         return s;
     }
 }

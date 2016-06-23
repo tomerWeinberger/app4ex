@@ -8,6 +8,13 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -80,6 +87,27 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }
     }
 
+    public List<ChatMessage> ConvertJsonToList(JSONArray arr, String action,Timestamp firstMsgTime){
+        try {
+            List<ChatMessage> list = new ArrayList<>();
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject j = arr.getJSONObject(i);
+                String msg = j.getString("msg");
+                String sender = j.getString("sender");
+                String time = j.getString("time");
+                if (action.equals("to")) {
+                    if (Timestamp.valueOf(time).before(firstMsgTime))
+                        list.add(new ChatMessage(sender, msg, time));
+                } else if (action.equals("from")) {
+                    list.add(new ChatMessage(sender, msg, time));
+                }
+            }
+            list = this.sort(list);
+            return list;
+        }catch(Exception e){
+            return null;
+        }
+    }
     /*
     remove an object from list
      */

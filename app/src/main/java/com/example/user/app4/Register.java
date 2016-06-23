@@ -49,6 +49,7 @@ public class Register extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //initiate activity vars
         setContentView(R.layout.activity_register);
         usernameIn = (EditText) findViewById(R.id.input_username);
         passwordIn = (EditText) findViewById(R.id.input_password);
@@ -151,7 +152,6 @@ public class Register extends AppCompatActivity {
         String email = emailIn.getText().toString();
         String password = passwordIn.getText().toString();
         String namePvt = nameIn.getText().toString();
-
         //for each field-if it is empty set an err msg
         if (name.isEmpty()) {
             usernameIn.setError("at least 1 characters");

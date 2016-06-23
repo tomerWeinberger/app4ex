@@ -14,6 +14,5 @@ public class NotificationUpd extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         chat.updateMessages("time");
-
     }
 }
