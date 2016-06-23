@@ -27,6 +27,32 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         this.toSee = 10;
     }
 
+    public List<ChatMessage> getList() {
+        return chatMessageList;
+    }
+    public List<ChatMessage> sort(List<ChatMessage> c) {
+        //sort list
+        int len = chatMessageList.size();
+        for (int i = 0; i < len; i++) {
+            for (int d = 0; d < len - i - 1; d++) {
+                ChatMessage curr = c.get(d);
+                ChatMessage next = c.get(d + 1);
+                if (curr.time.before(next.time)) /* For descending order use < */ {
+                    ChatMessage swap = curr;
+                    curr = next;
+                    next = swap;
+                }
+            }
+        }
+        return c;
+    }
+    public void setList(List<ChatMessage> l) {
+        this.chatMessageList.clear();
+        super.clear();
+        for(int i=0;i<l.size();i++)
+            this.add(l.get(i));
+    }
+
     /*
     name add
     dsc the func add an object and if there are too much on the display
@@ -42,11 +68,6 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }
     }
 
-    public void clearAll() {
-        for(int i=0;i<this.chatMessageList.size();i++)
-            this.chatMessageList.remove(i);
-       this.chatMessageList.clear();
-    }
     /*
     remove an object from list
      */

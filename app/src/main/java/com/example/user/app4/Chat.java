@@ -32,8 +32,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class Chat extends Activity {
 
@@ -263,14 +266,16 @@ public class Chat extends Activity {
     public class MsgTask extends AsyncTask<Void, Void, JSONObject> {
         private String sender;
         private String msg;
-        private String action;
         private String time;
+        private String action;
+
         private boolean notify = false;
         private HashMapParser map;
         /*
         c'tor
          */
         MsgTask(String action, String sender, String msg, String t) {
+            this.action = action;
             this.map = new HashMapParser();
             this.map.put("action", action);
             this.map.put("sender", sender);
@@ -308,15 +313,25 @@ public class Chat extends Activity {
                 if(s.equals("list")){
                     //parse the json object to lst of msg & send to our chatArrayAdapter
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
-                    chatArrayAdapter.clearAll();
+                    List<ChatMessage> chatMessageList = new ArrayList<>();
+                    Timestamp lastMsgTime = chatMessageList.get(chatMessageList.size()).time;
+                    Timestamp firstMsgTime = chatMessageList.get(0).time;
+                    chatMessageList = chatArrayAdapter.getList();
                     //add msgs
                     for (int i = 0; i < arr.length(); i++) {
                         JSONObject j = arr.getJSONObject(i);
                         String msg = j.getString("msg");
                         String sender = j.getString("sender");
                         String time = j.getString("time");
-                        chatArrayAdapter.add(new ChatMessage(sender,msg,time));
+                        if(action.equals("to")) {
+                          if(Timestamp.valueOf(time).before(firstMsgTime))
+                              chatMessageList.add(new ChatMessage(sender,msg,time));
+                        } else if(action.equals("from")) {
+                              chatMessageList.add(new ChatMessage(sender,msg,time));
+                        }
                     }
+                    chatMessageList = chatArrayAdapter.sort(chatMessageList);
+                    chatArrayAdapter.setList(chatMessageList);
                     //if i was aked to notify,and there are new msgs
                     if(notify && chatArrayAdapter.getCount() > prevSize) {
                         //set notifications properties
@@ -330,6 +345,7 @@ public class Chat extends Activity {
                 e.printStackTrace();
             }
         }
+
         @Override
         protected void onCancelled() {
             mAuthTask = null;
