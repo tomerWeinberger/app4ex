@@ -62,7 +62,7 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     }
     //add tem more if necceccarry
     public void addTenTolist(){
-        this.toSee+=10;
+        this.toSee = this.chatMessageList.size()+10;
     }
     @Override
     //get size of list
@@ -89,7 +89,6 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         chatText2.setText(chatMessageObj.sender+" "+time);
         return row;
     }
-
 }
 
 

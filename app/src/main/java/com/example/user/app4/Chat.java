@@ -233,6 +233,7 @@ public class Chat extends Activity {
         //get current time
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
+        chatArrayAdapter.addTenTolist();
         //ask for msg up to this time
         mAuthTask = new MsgTask("to",this.username, chatText.getText().toString(),currentTimestamp.toString());
         mAuthTask.execute();
@@ -307,7 +308,6 @@ public class Chat extends Activity {
                 if(s.equals("list")){
                     //parse the json object to lst of msg & send to our chatArrayAdapter
                     JSONArray arr = (JSONArray) json.getJSONArray("list");
-                    chatArrayAdapter.addTenTolist();
                     chatArrayAdapter.clearAll();
                     //add msgs
                     for (int i = 0; i < arr.length(); i++) {
