@@ -26,4 +26,6 @@
     <string name="clear">Clear All Fields</string>
     <string name="title_activity_chat">Chat</string>
     <string name="title_activity_manual">Manual</string>
+    <string name="send">SEND</string>
+    <string name="type_text">type your messege</string>
 </resources>

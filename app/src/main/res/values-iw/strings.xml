@@ -19,11 +19,13 @@
     <string name="title_activity_explenation">הסבר</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="exp1">צור קשר עם אנשים מסביב לעולם</string>
-    <string name="exp2">גלה את היסטורית ההודעות ע"י גלילת המסך</string>
+    <string name="exp2">גלה היסטוריה</string>
     <string name="exp3">נער את המכשיר לרענון</string>
     <string name="exp4">קבל עדכונים גם כשאינך מחובר</string>
     <string name="exp5">ששתף את הגיגיך הלא מעניינים</string>
     <string name="clear">נקה את כל השדות</string>
-    <string name="title_activity_chat">צ'אט</string>
+    <string name="title_activity_chat">צאט</string>
     <string name="title_activity_manual">מדריך</string>
+    <string name="send">שלח</string>
+    <string name="type_text">הקלד הודעה</string>
 </resources>
