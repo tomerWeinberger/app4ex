@@ -106,7 +106,7 @@ public class Chat extends Activity {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         //ask for msg up to this time
-        mAuthTask = new MsgTask("to", this.username, "msg", currentTimestamp.toString());
+        mAuthTask = new MsgTask("loadMore", this.username, "msg", currentTimestamp.toString());
         mAuthTask.execute();
         setNotifcat();
     }
@@ -153,7 +153,7 @@ public class Chat extends Activity {
         Calendar calendar = Calendar.getInstance();
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         //ask for msg from this time
-        mAuthTask = new MsgTask("from", this.username, chatText.getText().toString(), currentTimestamp.toString());
+        mAuthTask = new MsgTask("update", this.username, chatText.getText().toString(), currentTimestamp.toString());
         //if action was asked not by user(but by time defs)
         if (choice.equals("time"))
             mAuthTask.setNotify(true);
@@ -170,7 +170,7 @@ public class Chat extends Activity {
         java.sql.Timestamp currentTimestamp = new java.sql.Timestamp(calendar.getTime().getTime());
         chatArrayAdapter.addTenTolist();
         //ask for msg up to this time
-        mAuthTask = new MsgTask("to", this.username, chatText.getText().toString(), currentTimestamp.toString());
+        mAuthTask = new MsgTask("loadMore", this.username, chatText.getText().toString(), currentTimestamp.toString());
         mAuthTask.execute();
     }
 

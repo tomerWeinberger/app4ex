@@ -18,37 +18,51 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     private TextView chatText;
     private TextView chatText2;
     private List<ChatMessage> chatMessageList = new ArrayList<>();
-    private Context context;
     private int toSee;
 
     public ChatArrayAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
-        this.context = context;
+        //initialize view size to 0
         this.toSee = 10;
     }
 
     public List<ChatMessage> getList() {
         return chatMessageList;
     }
+    /*
+    name sort
+    desc:sort,of course
+     */
     public List<ChatMessage> sort(List<ChatMessage> c) {
         //sort list
-
         Collections.sort(c);
         return c;
     }
+
+    /*
+    name differ
+    desc check if the two list differ in their info
+     */
     public boolean Differ(List<ChatMessage> l) {
+        //limit to check the list
         int min = (this.chatMessageList.size() <l.size() ? this.chatMessageList.size():l.size());
         for(int i=0;i<min;i++){
             ChatMessage one = l.get(i);
             ChatMessage two = this.chatMessageList.get(i);
+            //check if one item differ
             if(!one.time.equals(two.time) || !one.sender.equals(two.sender) ||
                     !one.msg.equals(two.msg))
                 return  true;
         }
         return false;
     }
+
+    /*
+    name setList
+    desc:the func gets a list and set it to chatMessageList
+     */
     public void setList(List<ChatMessage> l,String action) {
-        if(action.equals("from")) {
+        if(action.equals("update")) {
             this.chatMessageList.clear();
             super.clear();
         }
@@ -58,12 +72,16 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         super.notifyDataSetChanged();
     }
 
+    /*
+    the func create a copy of a given list
+     */
     public List<ChatMessage> Copy() {
         List<ChatMessage> copy = new ArrayList<>();
         for(int i=0;i<this.chatMessageList.size();i++)
             copy.add(this.chatMessageList.get(i));
         return copy;
     }
+
     /*
     name add
     dsc the func add an object and if there are too much on the display
@@ -79,6 +97,9 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
         }
     }
 
+    /*
+    the func creates a list out of a json array
+     */
     public List<ChatMessage> ConvertJsonToList(JSONArray arr, String action,Timestamp firstMsgTime){
         try {
             List<ChatMessage> list = new ArrayList<>();
@@ -87,10 +108,12 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
                 String msg = j.getString("msg");
                 String sender = j.getString("sender");
                 String time = j.getString("time");
-                if (action.equals("to")) {
+                //add only to the end
+                if (action.equals("loadMore")) {
                     if (Timestamp.valueOf(time).before(firstMsgTime))
                         list.add(new ChatMessage(sender, msg, time));
-                } else if (action.equals("from")) {
+                    //add all msgs
+                } else if (action.equals("update")) {
                     list.add(new ChatMessage(sender, msg, time));
                 }
             }
@@ -113,13 +136,16 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     public void initializetoSee(){
         this.toSee=10;
     }
-    //add tem more if necceccarry
+
+    //add ten more items if necceccarry
     public void addTenTolist(){
         this.toSee = this.chatMessageList.size()+10;
     }
+
     @Override
     //get size of list
     public int getCount() { return this.chatMessageList.size(); }
+
     //get ith item
     public ChatMessage getItem(int index) {
         return this.chatMessageList.get(index);
