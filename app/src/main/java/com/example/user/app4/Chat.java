@@ -346,6 +346,7 @@ public class Chat extends Activity {
         Intent in = new Intent(this,NotificationUpd.class);
         alramMg.set(AlarmManager.RTC_WAKEUP,timeTo, PendingIntent.getBroadcast(this,0,in,PendingIntent.FLAG_UPDATE_CURRENT));
     }
+
     public void NotyAlram(){
         Context context = getApplicationContext();
         NotificationCompat.Builder mbuild = new NotificationCompat.Builder(context)
