@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
@@ -32,27 +33,38 @@ class ChatArrayAdapter extends ArrayAdapter<ChatMessage> {
     }
     public List<ChatMessage> sort(List<ChatMessage> c) {
         //sort list
-        int len = chatMessageList.size();
-        for (int i = 0; i < len; i++) {
-            for (int d = 0; d < len - i - 1; d++) {
-                ChatMessage curr = c.get(d);
-                ChatMessage next = c.get(d + 1);
-                if (curr.time.before(next.time)) /* For descending order use < */ {
-                    ChatMessage swap = curr;
-                    curr = next;
-                    next = swap;
-                }
-            }
-        }
+
+        Collections.sort(c);
         return c;
     }
-    public void setList(List<ChatMessage> l) {
-        this.chatMessageList.clear();
-        super.clear();
+    public boolean Differ(List<ChatMessage> l) {
+        int min = (this.chatMessageList.size() <l.size() ? this.chatMessageList.size():l.size());
+        for(int i=0;i<min;i++){
+            ChatMessage one = l.get(i);
+            ChatMessage two = this.chatMessageList.get(i);
+            if(!one.time.equals(two.time) || !one.sender.equals(two.sender) ||
+                    !one.msg.equals(two.msg))
+                return  true;
+        }
+        return false;
+    }
+    public void setList(List<ChatMessage> l,String action) {
+        if(action.equals("from")) {
+            this.chatMessageList.clear();
+            super.clear();
+        }
         for(int i=0;i<l.size();i++)
             this.add(l.get(i));
+        this.chatMessageList = this.sort(this.chatMessageList);
+        super.notifyDataSetChanged();
     }
 
+    public List<ChatMessage> Copy() {
+        List<ChatMessage> copy = new ArrayList<>();
+        for(int i=0;i<this.chatMessageList.size();i++)
+            copy.add(this.chatMessageList.get(i));
+        return copy;
+    }
     /*
     name add
     dsc the func add an object and if there are too much on the display
