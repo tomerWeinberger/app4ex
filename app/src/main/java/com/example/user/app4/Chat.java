@@ -179,6 +179,7 @@ public class Chat extends Activity {
 
             @Override
             public void onSensorChanged(SensorEvent event) {
+
                 if (event.sensor.getType() != SensorManager.SENSOR_ACCELEROMETER) return;
                     long curTime = System.currentTimeMillis();
                     // only allow one update every 100ms.
